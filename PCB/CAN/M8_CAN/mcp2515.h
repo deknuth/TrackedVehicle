@@ -1,11 +1,5 @@
 /**
  * @file 	mcp2515.h
- * 
- * @author 	Fabian Greif
- * @date	22.3.2005
- *
- * @brief	enthät Funktionen zur Ansteuerung eines MCP2515
- *
  * Es wird der Hardware SPI Bus des AVRs benutzt.
  * 
  * /CS des MCp2515 muss dabei an den SS Pin des SPI Interfaces angeschloßen sein.
@@ -16,10 +10,6 @@
 #define _MCP2515_H_ 1
 
 #include "main.h"
-
-/**
- * @name	Definitionen für das UART "Protokoll"
- */
 
 /**
  * @brief	Verwendete Pins
@@ -170,9 +160,6 @@
 #define RXB1D6		0x7C
 #define RXB1D7		0x7D
 
-/**
- * @name	Bitdefinition der verschiedenen Register
- */
 /**
  * @brief	Bitdefinition von BFPCTRL
  */
@@ -332,50 +319,13 @@
 #define	DLC1		1
 #define DLC0		0
 
-/*@}*/
 
-extern uint8_t spi_putc( uint8_t data );
-
-/**
- * @brief	Initialisieren des MCP2515 CAN Controllers
- *
- * Aktiviert das SPI Interface und initialisiert dann den MCP2515 CAN Controller.
- */
+extern unsigned char spi_putc( unsigned char data );
 extern void mcp2515_init(void);
-
-/**
- * @brief	Beschreiben von internen Registern
- *
- * 
- */
-extern void mcp2515_write_register( uint8_t adress, uint8_t data );
-
-/**
- * @brief	Lesen der internen Register
- *
- * 
- */
-extern uint8_t mcp2515_read_register(uint8_t adress);
-
-/**
- * @brief	Setzten/löschen einzelner Bits
- *
- * 
- */
-extern void mcp2515_bit_modify(uint8_t adress, uint8_t mask, uint8_t data);
-
-/**
- * @brief	Beschreiben von Registerblöcken
- *
- * 
- */
-extern void mcp2515_write_register_p( uint8_t adress, uint8_t *data, uint8_t length );
-
-/**
- * @brief	Lesen von Registerblöcken
- *
- * 
- */
-extern void mcp2515_read_register_p( uint8_t adress, uint8_t *data, uint8_t length );
+extern void mcp2515_write_register( unsigned char adress, unsigned char data );
+extern unsigned char mcp2515_read_register(unsigned char adress);
+extern void mcp2515_bit_modify(unsigned char adress, unsigned char mask, unsigned char data);
+extern void mcp2515_write_register_p( unsigned char adress, unsigned char *data, unsigned char length );
+extern void mcp2515_read_register_p( unsigned char adress, unsigned char *data, unsigned char length );
 
 #endif // _MCP2515_H_

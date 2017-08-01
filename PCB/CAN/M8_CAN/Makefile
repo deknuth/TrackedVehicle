@@ -40,7 +40,7 @@
 
 
 # MCU name
-MCU = atmega8
+MCU = atmega48p
 
 
 # Processor frequency.
@@ -60,7 +60,7 @@ TARGET = main
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c uart.c adc.c mcp2515.c can.c lcd.c
+SRC = $(TARGET).c mcp2515.c can.c uart.c
 
 
 # List Assembler source files here.

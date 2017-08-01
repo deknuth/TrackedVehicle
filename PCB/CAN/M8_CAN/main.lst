@@ -1,0 +1,362 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   9               		.text
+  10               	.Ltext0:
+  90               	.global	delay
+  92               	delay:
+   1:main.c        **** 
+   2:main.c        **** #include "main.h"
+   3:main.c        **** #include "uart.h"
+   4:main.c        **** #include "mcp2515.h"
+   5:main.c        **** #include "can.h"
+   6:main.c        **** 
+   7:main.c        **** void init(void);
+   8:main.c        **** void delay(unsigned int ms);
+   9:main.c        **** 
+  10:main.c        **** #define	UART	0
+  11:main.c        **** 
+  12:main.c        **** int main(void)
+  13:main.c        **** {
+  14:main.c        ****     mcp2515_init();
+  15:main.c        **** 
+  16:main.c        ****     //unsigned char daten[8] = { 0x7B, 0x0F, 0x8E, 0x15, 0xC2, 0xAA, 0xAA, 0xFF };
+  17:main.c        ****     /*while(1)
+  18:main.c        ****     {
+  19:main.c        ****         //can_send_message( 0x048DABCD, daten, 8, CAN_EID );
+  20:main.c        ****         can_send_message( 0x00000123, daten, 5, CAN_RTR );
+  21:main.c        ****         daten[0] = daten[0] + 3;
+  22:main.c        ****         delay(1000);
+  23:main.c        ****     }*/
+  24:main.c        ****     while(1)
+  25:main.c        ****     {
+  26:main.c        ****         unsigned char temp, rtr = 0;
+  27:main.c        ****         temp = mcp2515_read_register( CANINTF );
+  28:main.c        **** 
+  29:main.c        ****         // Ñ­»·¶Ácan
+  30:main.c        ****         if ( temp & ((1<<RX0IF)|(1<<RX1IF)) )
+  31:main.c        ****         {
+  32:main.c        ****             unsigned char i;
+  33:main.c        ****             unsigned int iTemp = 0;
+  34:main.c        **** 
+  35:main.c        **** //            uart_puts_P("eine neue Nachricht wurde empfangen : \n");
+  36:main.c        ****             temp = mcp2515_read_register( RXB0SIDL );       
+  37:main.c        ****             if ( temp & (1<<IDE) )
+  38:main.c        ****             {
+  39:main.c        **** //                uart_puts_P("Extended Identifier : ");
+  40:main.c        **** //                uart_put_hex(mcp2515_read_register( RXB0SIDL) & 0x03 );
+  41:main.c        **** //                uart_put_hex(mcp2515_read_register( RXB0EID8) );
+  42:main.c        ****  //               uart_put_hex(mcp2515_read_register( RXB0EID0) );
+  43:main.c        **** //                uart_putc('\n');
+  44:main.c        **** //                uart_puts_P("Standard Identifier : ");
+  45:main.c        ****                 iTemp = ( (unsigned int) mcp2515_read_register( RXB0SIDH ))<<3;
+  46:main.c        ****                 iTemp |= (temp>>5) & 0x07;
+  47:main.c        **** 
+  48:main.c        ****                 uart_put_hex((unsigned char) (iTemp>>8));
+  49:main.c        ****                 uart_put_hex((unsigned char) iTemp & 0x00ff);
+  50:main.c        ****                 uart_putc('\n');
+  51:main.c        **** 
+  52:main.c        ****                 if ( mcp2515_read_register( RXB0DLC ) & (1<<RTR))
+  53:main.c        ****                     uart_puts_P("Remote Transmit Request\n");
+  54:main.c        ****             }
+  55:main.c        ****             else
+  56:main.c        ****             {
+  57:main.c        ****                 uart_puts_P("Standard Identifier : ");
+  58:main.c        ****                 iTemp = ( (unsigned int) mcp2515_read_register( RXB0SIDH ))<<3;
+  59:main.c        ****                 iTemp |= (temp>>5) & 0x07;
+  60:main.c        **** 
+  61:main.c        ****                 /* Identifier ausgeben */
+  62:main.c        ****                 uart_put_hex((unsigned char) (iTemp>>8));
+  63:main.c        ****                 uart_put_hex((unsigned char) iTemp & 0x00ff);
+  64:main.c        **** 
+  65:main.c        ****                 uart_putc('\n');
+  66:main.c        **** 
+  67:main.c        ****                 /* Überprüfen ob es ein Standard Remote Transmit Request Frame ist */
+  68:main.c        ****                 if ( temp & (1<<SRR))
+  69:main.c        ****                 {
+  70:main.c        ****                     uart_puts_P("Remote Transmit Request\n");
+  71:main.c        ****                     rtr = 1;
+  72:main.c        ****                 }
+  73:main.c        ****                 else
+  74:main.c        ****                 {
+  75:main.c        ****                     ;
+  76:main.c        ****                 }
+  77:main.c        ****             }
+  78:main.c        ****             /* Datenlänge usw. einlesen */
+  79:main.c        ****             temp = mcp2515_read_register( RXB0DLC ) & 0x0F;
+  80:main.c        ****             if (rtr == 0)
+  81:main.c        ****             {
+  82:main.c        ****                 /* Datenbytes ausgeben */
+  83:main.c        ****                 for (i = 0;i < temp; i++ )
+  84:main.c        ****                 {
+  85:main.c        ****                     unsigned char daten = mcp2515_read_register( RXB0D0 + i );
+  86:main.c        ****                     uart_puts_P("DByte ");
+  87:main.c        ****                     uart_putc(i + '0');
+  88:main.c        ****                     uart_puts_P(" : ");
+  89:main.c        ****                     uart_put_hex( daten );
+  90:main.c        ****                     uart_putc('\n');
+  91:main.c        **** 
+  92:main.c        ****                 }
+  93:main.c        ****             }
+  94:main.c        ****             uart_putc('\n');
+  95:main.c        ****             /* Interrupt Flag löschen */
+  96:main.c        ****             mcp2515_bit_modify( CANINTF, 0x01, 0x00 );
+  97:main.c        ****         }
+  98:main.c        ****     }
+  99:main.c        ****     return 0;
+ 100:main.c        **** }
+ 101:main.c        **** 
+ 102:main.c        **** void delay(unsigned int ms)
+ 103:main.c        **** {
+  93               	mp .L2
+  94               	.L4:
+  96               	.LM1:
+  97               		ldi r18,lo8(1474)
+  98 0000 00C0      		ldi r19,hi8(1474)
+  99               	.L3:
+ 104:main.c        ****     unsigned int zaehler;
+ 105:main.c        ****     while (ms)
+ 100               		68,0,110,.LM2-.LFBB1
+ 101               	.LM2:
+ 102 0002 22EC      	/* #APP */
+ 103 0004 35E0      	 ;  110 "main.c" 1
+ 104               		nop
+ 106:main.c        ****     {
+ 107:main.c        ****         zaehler = F_CPU / 5000;
+ 108:main.c        ****         while (zaehler)
+ 109:main.c        ****         {
+ 110:main.c        ****             asm volatile ("nop");
+ 105               	 "" 2
+ 107               	.LM3:
+ 108               	/* #NOAPP */
+ 109 0006 0000      		subi r18,lo8(-(-1))
+ 110               		sbci r19,hi8(-(-1))
+ 111:main.c        ****             zaehler--;
+ 111               	n	68,0,108,.LM4-.LFBB1
+ 112               	.LM4:
+ 113               		brne .L3
+ 115 000a 3040      	.LM5:
+ 116               		sbiw r24,1
+ 117               	.L2:
+ 112:main.c        ****         }
+ 113:main.c        ****         ms--;
+ 119               	biw r24,0
+ 120               		brne .L4
+ 121 000e 0197      	/* epilogue start */
+ 123               	.LM7:
+ 124               		ret
+ 114:main.c        ****     }
+ 115:main.c        **** }
+ 128               	24,0,0,.Lscope1-.LFBB1
+ 129               	.Lscope1:
+ 131               	.global	main
+ 133               	main:
+ 135               	.LM8:
+ 136               	.LFBB2:
+ 137               		push r14
+ 138               		push r15
+ 139               		push r16
+ 140               		push r17
+ 141               	/* prologue: function */
+ 142               	/* frame size = 0 */
+ 144 0018 FF92      	.LM9:
+ 145 001a 0F93      		rcall mcp2515_init
+ 146 001c 1F93      	.L18:
+ 147               	.LBB2:
+ 149               	.LM10:
+ 150               		ldi r24,lo8(44)
+ 151 001e 00D0      		rcall mcp2515_read_register
+ 153               	.LM11:
+ 154               		ldi r25,lo8(0)
+ 155               		andi r24,lo8(3)
+ 156 0020 8CE2      		andi r25,hi8(3)
+ 157 0022 00D0      		or r24,r25
+ 158               		breq .L18
+ 159               	.LBB3:
+ 161 0026 8370      	.LM12:
+ 162 0028 9070      		ldi r24,lo8(98)
+ 163 002a 892B      		rcall mcp2515_read_register
+ 165               	.LM13:
+ 166               		mov r14,r24
+ 167               		mov r15,r24
+ 168 002e 82E6      		swap r15
+ 169 0030 00D0      		lsr r15
+ 170               		ldi r20,lo8(7)
+ 171               		and r15,r20
+ 172 0032 E82E      		sbrs r24,3
+ 173 0034 F82E      		rjmp .L9
+ 175 0038 F694      	.LM14:
+ 176 003a 47E0      		ldi r24,lo8(97)
+ 177 003c F422      		rcall mcp2515_read_register
+ 178 003e 83FF      		mov r16,r24
+ 179 0040 00C0      		ldi r17,lo8(0)
+ 180               		ldi r19,3
+ 181               	1:	lsl r16
+ 182 0042 81E6      		rol r17
+ 183 0044 00D0      		dec r19
+ 184 0046 082F      		brne 1b
+ 186 004a 33E0      	.LM15:
+ 187 004c 000F      		mov r24,r15
+ 188 004e 111F      		ldi r25,lo8(0)
+ 189 0050 3A95      		or r16,r24
+ 190 0052 01F4      		or r17,r25
+ 192               	.LM16:
+ 193 0054 8F2D      		mov r24,r17
+ 194 0056 90E0      		rcall uart_put_hex
+ 196 005a 192B      	.LM17:
+ 197               		mov r24,r16
+ 198               		rcall uart_put_hex
+ 200 005e 00D0      	.LM18:
+ 201               		ldi r24,lo8(10)
+ 202               		rcall uart_putc
+ 204 0062 00D0      	.LM19:
+ 205               		ldi r24,lo8(101)
+ 206               		rcall mcp2515_read_register
+ 207 0064 8AE0      		sbrs r24,6
+ 208 0066 00D0      		rjmp .L10
+ 210               	.LM20:
+ 211 0068 85E6      		ldi r24,lo8(__c.1375)
+ 212 006a 00D0      		ldi r25,hi8(__c.1375)
+ 213 006c 86FF      		rcall uart_puts_p
+ 214 006e 00C0      		rjmp .L10
+ 215               	.L9:
+ 217 0070 80E0      	.LM21:
+ 218 0072 90E0      		ldi r24,lo8(__c.1377)
+ 219 0074 00D0      		ldi r25,hi8(__c.1377)
+ 220 0076 00C0      		rcall uart_puts_p
+ 222               	.LM22:
+ 223               		ldi r24,lo8(97)
+ 224 0078 80E0      		rcall mcp2515_read_register
+ 225 007a 90E0      		mov r16,r24
+ 226 007c 00D0      		ldi r17,lo8(0)
+ 227               		ldi r18,3
+ 228               	1:	lsl r16
+ 229 007e 81E6      		rol r17
+ 230 0080 00D0      		dec r18
+ 231 0082 082F      		brne 1b
+ 233 0086 23E0      	.LM23:
+ 234 0088 000F      		mov r24,r15
+ 235 008a 111F      		ldi r25,lo8(0)
+ 236 008c 2A95      		or r16,r24
+ 237 008e 01F4      		or r17,r25
+ 239               	.LM24:
+ 240 0090 8F2D      		mov r24,r17
+ 241 0092 90E0      		rcall uart_put_hex
+ 243 0096 192B      	.LM25:
+ 244               		mov r24,r16
+ 245               		rcall uart_put_hex
+ 247 009a 00D0      	.LM26:
+ 248               		ldi r24,lo8(10)
+ 249               		rcall uart_putc
+ 251 009e 00D0      	.LM27:
+ 252               		sbrs r14,4
+ 253               		rjmp .L10
+ 255 00a2 00D0      	.LM28:
+ 256               		ldi r24,lo8(__c.1379)
+ 257               		ldi r25,hi8(__c.1379)
+ 258 00a4 E4FE      		rcall uart_puts_p
+ 259 00a6 00C0      		ldi r17,lo8(1)
+ 260               		rjmp .L11
+ 261               	.L10:
+ 262 00a8 80E0      		ldi r17,lo8(0)
+ 263 00aa 90E0      	.L11:
+ 265 00ae 11E0      	.LM29:
+ 266 00b0 00C0      		ldi r24,lo8(101)
+ 267               		rcall mcp2515_read_register
+ 268 00b2 10E0      		ldi r25,lo8(15)
+ 269               		mov r15,r25
+ 270               		and r15,r24
+ 272 00b4 85E6      	.LM30:
+ 273 00b6 00D0      		tst r17
+ 274 00b8 9FE0      		brne .L12
+ 275 00ba F92E      		ldi r16,lo8(0)
+ 276 00bc F822      		rjmp .L13
+ 277               	.L14:
+ 278               	.LBB4:
+ 280 00c0 01F4      	.LM31:
+ 281 00c2 00E0      		mov r24,r16
+ 282 00c4 00C0      		subi r24,lo8(-(102))
+ 283               		rcall mcp2515_read_register
+ 284               		mov r17,r24
+ 286               	.LM32:
+ 287 00c6 802F      		ldi r24,lo8(__c.1382)
+ 288 00c8 8A59      		ldi r25,hi8(__c.1382)
+ 289 00ca 00D0      		rcall uart_puts_p
+ 291               	.LM33:
+ 292               		mov r24,r16
+ 293 00ce 80E0      		subi r24,lo8(-(48))
+ 294 00d0 90E0      		rcall uart_putc
+ 296               	.LM34:
+ 297               		ldi r24,lo8(__c.1384)
+ 298 00d4 802F      		ldi r25,hi8(__c.1384)
+ 299 00d6 805D      		rcall uart_puts_p
+ 301               	.LM35:
+ 302               		mov r24,r17
+ 303 00da 80E0      		rcall uart_put_hex
+ 305 00de 00D0      	.LM36:
+ 306               		ldi r24,lo8(10)
+ 307               		rcall uart_putc
+ 308 00e0 812F      	.LBE4:
+ 310               	.LM37:
+ 311               		subi r16,lo8(-(1))
+ 312 00e4 8AE0      	.L13:
+ 313 00e6 00D0      		cp r16,r15
+ 314               		brlo .L14
+ 315               	.L12:
+ 317 00e8 0F5F      	.LM38:
+ 318               		ldi r24,lo8(10)
+ 319 00ea 0F15      		rcall uart_putc
+ 321               	.LM39:
+ 322               		ldi r24,lo8(44)
+ 323               		ldi r22,lo8(1)
+ 324 00ee 8AE0      		ldi r20,lo8(0)
+ 325 00f0 00D0      		rcall mcp2515_bit_modify
+ 326               		rjmp .L18
+ 327               	.LBE3:
+ 328 00f2 8CE2      	.LBE2:
+ 339               	.Lscope2:
+ 340               		.section	.progmem.data,"a",@progbits
+ 343               	__c.1384:
+ 344               		.string	" : "
+ 347               	__c.1382:
+ 348               		.string	"DByte "
+ 351               	__c.1379:
+ 352               		.string	"Remote Transmit Request\n"
+ 355               	__c.1377:
+ 356               		.string	"Standard Identifier : "
+ 359               	__c.1375:
+ 360               		.string	"Remote Transmit Request\n"
+ 366 003b 5265 6D6F 		.text
+ 366      7465 2054 
+ 366      7261 6E73 
+ 366      6D69 7420 
+ 366      5265 7175 
+ 368               	.Letext0:
+ 369               	...
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:2      *ABS*:0000003f __SREG__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:3      *ABS*:0000003e __SP_H__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:4      *ABS*:0000003d __SP_L__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:5      *ABS*:00000034 __CCP__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:92     .text:00000000 delay
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:139    .text:00000016 main
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:365    .progmem.data:0000003b __c.1375
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:361    .progmem.data:00000024 __c.1377
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:357    .progmem.data:0000000b __c.1379
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:353    .progmem.data:00000004 __c.1382
+C:\Users\ADMINI~1\AppData\Local\Temp/cceVHGWG.s:349    .progmem.data:00000000 __c.1384
+
+UNDEFINED SYMBOLS
+mcp2515_init
+mcp2515_read_register
+uart_put_hex
+uart_putc
+uart_puts_p
+mcp2515_bit_modify

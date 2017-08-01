@@ -1,0 +1,698 @@
+   1               		.file	"mcp2515.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   9               		.text
+  10               	.Ltext0:
+  73               	.global	spi_init
+  75               	spi_init:
+   1:mcp2515.c     **** #include "mcp2515.h"
+   2:mcp2515.c     **** 
+   3:mcp2515.c     **** #define SPI_CS_L	PORTB&=~(1<<SPI_CS)
+   4:mcp2515.c     **** #define SPI_CS_H	PORTB|=(1<<SPI_CS)
+   5:mcp2515.c     **** 
+   6:mcp2515.c     **** void spi_init(void);
+   7:mcp2515.c     **** unsigned char spi_putc( unsigned char data );
+   8:mcp2515.c     **** void mcp2515_init(void);
+   9:mcp2515.c     **** void mcp2515_write_register(unsigned char data, unsigned char adress);
+  10:mcp2515.c     **** unsigned char mcp2515_read_register(unsigned char adress);
+  11:mcp2515.c     **** void mcp2515_bit_modify(unsigned char data, unsigned char mask, unsigned char adress);
+  12:mcp2515.c     **** void mcp2515_write_register_p( unsigned char adress, unsigned char *data, unsigned char length );
+  13:mcp2515.c     **** 
+  14:mcp2515.c     **** void spi_init(void)
+  15:mcp2515.c     **** {
+  76               	 size = 0 */
+  78               	.LM1:
+  79               		in r24,36-32
+  80               		ori r24,lo8(44)
+  16:mcp2515.c     ****     DDRB |= (1<<SPI_CS)|(1<<SPI_SCK)|(1<<SPI_MOSI);
+  81               	36-32,r24
+  83 0000 84B1      	.LM2:
+  84 0002 8C62      		sbi 37-32,2
+  17:mcp2515.c     ****     PORTB |= (1<<SPI_CS);
+  86               	
+  87               		cbi 37-32,5
+  18:mcp2515.c     ****     PORTB &= ~(1<<SPI_SCK)|(1<<SPI_MOSI)|(1<<SPI_MISO);
+  89               	M4:
+  90               		ldi r24,lo8(80)
+  91 0008 2D98      		out 76-32,r24
+  19:mcp2515.c     ****     /* set SPI master interfaces, fosc = fclk / 4 */
+  20:mcp2515.c     ****     SPCR = (1<<SPE)|(1<<MSTR)/*|(1<<SPIE)*/;
+  92               	epilogue start */
+  94 000a 80E5      	.LM5:
+  95 000c 8CBD      		ret
+  21:mcp2515.c     ****     //SPSR = (1<<SPI2X);
+  22:mcp2515.c     **** }
+  97               	pe1:
+ 100               	.global	spi_putc
+ 102               	spi_putc:
+ 104               	.LM6:
+ 105               	.LFBB2:
+ 106               	/* prologue: function */
+  23:mcp2515.c     **** 
+  24:mcp2515.c     **** void mcp2515_init(void)
+  25:mcp2515.c     **** {
+  26:mcp2515.c     ****     spi_init();
+  27:mcp2515.c     ****     SPI_CS_L;
+  28:mcp2515.c     ****     spi_putc( SPI_RESET );
+  29:mcp2515.c     ****     SPI_CS_H;
+  30:mcp2515.c     **** 
+  31:mcp2515.c     ****     mcp2515_bit_modify( CANCTRL, 0xE0, (1<<REQOP2) );
+  32:mcp2515.c     **** 
+  33:mcp2515.c     ****     mcp2515_write_register( CNF1, (1<<BRP0)|(1<<BRP1) );		   		// SJW = 1*TO; BRP=3  TQ = 2*(BRP+1)
+  34:mcp2515.c     ****     mcp2515_write_register( CNF2, (1<<BTLMODE)|(1<<PHSEG11)|PHSEG0 );	// PS1 = 3*TQ; RSEG= 2*T  
+  35:mcp2515.c     ****     mcp2515_write_register( CNF3, (1<<PHSEG21)|(1<<PHSEG20) );			// PS2 = 4*TQ;   
+  36:mcp2515.c     ****     mcp2515_write_register( CANINTE, (1<<RX1IE)|(1<<RX0IE) );				
+  37:mcp2515.c     ****     mcp2515_write_register( RXB0CTRL, (1<<RXM1)|(1<<RXM0) );
+  38:mcp2515.c     ****     mcp2515_write_register( RXB1CTRL, (1<<RXM1)|(1<<RXM0) );
+  39:mcp2515.c     ****     
+  40:mcp2515.c     ****     unsigned char temp[4] = { 0, 0, 0, 0 };
+  41:mcp2515.c     ****     
+  42:mcp2515.c     ****     mcp2515_write_register_p( RXF0SIDH, temp, 4 );
+  43:mcp2515.c     ****     mcp2515_write_register_p( RXF1SIDH, temp, 4 );
+  44:mcp2515.c     ****     
+  45:mcp2515.c     ****     /* empty  Buffer 1 */
+  46:mcp2515.c     ****     mcp2515_write_register_p( RXF2SIDH, temp, 4 );
+  47:mcp2515.c     ****     mcp2515_write_register_p( RXF3SIDH, temp, 4 );
+  48:mcp2515.c     ****     mcp2515_write_register_p( RXF4SIDH, temp, 4 );
+  49:mcp2515.c     ****     mcp2515_write_register_p( RXF5SIDH, temp, 4 );
+  50:mcp2515.c     ****     mcp2515_write_register_p( RXM0SIDH, temp, 4 );
+  51:mcp2515.c     ****     mcp2515_write_register_p( RXM1SIDH, temp, 4 );
+  52:mcp2515.c     ****     
+  53:mcp2515.c     ****     /* Deaktivieren der Pins RXnBF Pins ( High Impedance State ) */
+  54:mcp2515.c     ****     mcp2515_write_register( BFPCTRL, 0 );
+  55:mcp2515.c     ****     /* TXnRTS Bits als Inputs schalten */
+  56:mcp2515.c     ****     mcp2515_write_register( TXRTSCTRL, 0 );
+  57:mcp2515.c     ****     mcp2515_bit_modify( CANCTRL, 0xE0, 0 );		// set to normal mode		
+  58:mcp2515.c     **** }
+  59:mcp2515.c     **** 
+  60:mcp2515.c     **** unsigned char spi_putc( unsigned char data )
+  61:mcp2515.c     **** {
+ 107               	ize = 0 */
+ 109               	.LM7:
+ 110               		out 78-32,r24
+ 111               	.L4:
+  62:mcp2515.c     ****     SPDR = data;
+ 112               	bn	68,0,63,.LM8-.LFBB2
+ 113               	.LM8:
+ 114 0010 8EBD      		in __tmp_reg__,77-32
+ 115               		sbrs __tmp_reg__,7
+  63:mcp2515.c     ****     while( !( SPSR & (1<<SPIF) ) );
+ 116               	p .L4
+ 118 0012 0DB4      	.LM9:
+ 119 0014 07FE      		in r24,78-32
+ 120 0016 00C0      	/* epilogue start */
+  64:mcp2515.c     ****     return SPDR;
+ 121               	bn	68,0,65,.LM10-.LFBB2
+ 122               	.LM10:
+ 123 0018 8EB5      		ret
+  65:mcp2515.c     **** }
+ 125               	ope2:
+ 129               	.global	mcp2515_write_register
+ 131               	mcp2515_write_register:
+ 133               	.LM11:
+ 134               	.LFBB3:
+ 135               	/* prologue: function */
+  66:mcp2515.c     **** 
+  67:mcp2515.c     **** 
+  68:mcp2515.c     **** void mcp2515_write_register( unsigned char adress, unsigned char data )
+  69:mcp2515.c     **** {
+ 136               	ze = 0 */
+ 137               		mov r25,r24
+ 139               	.LM12:
+ 140               		cbi 37-32,2
+ 141 001c 982F      	.LBB40:
+  70:mcp2515.c     ****     SPI_CS_L;
+ 142               	:
+ 144 001e 2A98      	.LM13:
+ 145               		ldi r24,lo8(2)
+ 146               		out 78-32,r24
+ 147               	.L8:
+ 149 0020 82E0      	.LM14:
+ 150 0022 8EBD      		in __tmp_reg__,77-32
+ 151               		sbrs __tmp_reg__,7
+ 152               		rjmp .L8
+ 154 0024 0DB4      	.LM15:
+ 155 0026 07FE      		in r24,78-32
+ 156 0028 00C0      	.LBE41:
+ 157               	.LBE40:
+ 158               	.LBB42:
+ 159 002a 8EB5      	.LBB43:
+ 161               	.LM16:
+ 162               		out 78-32,r25
+ 163               	.L9:
+ 165               	.LM17:
+ 166 002c 9EBD      		in __tmp_reg__,77-32
+ 167               		sbrs __tmp_reg__,7
+ 168               		rjmp .L9
+ 170 002e 0DB4      	.LM18:
+ 171 0030 07FE      		in r24,78-32
+ 172 0032 00C0      	.LBE43:
+ 173               	.LBE42:
+ 174               	.LBB44:
+ 175 0034 8EB5      	.LBB45:
+ 177               	.LM19:
+ 178               		out 78-32,r22
+ 179               	.L10:
+ 181               	.LM20:
+ 182 0036 6EBD      		in __tmp_reg__,77-32
+ 183               		sbrs __tmp_reg__,7
+ 184               		rjmp .L10
+ 186 0038 0DB4      	.LM21:
+ 187 003a 07FE      		in r24,78-32
+ 188 003c 00C0      	.LBE45:
+ 189               	.LBE44:
+ 191 003e 8EB5      	.LM22:
+ 192               		sbi 37-32,2
+ 193               	/* epilogue start */
+  71:mcp2515.c     ****     spi_putc(SPI_WRITE);
+  72:mcp2515.c     ****     spi_putc(adress);
+  73:mcp2515.c     ****     spi_putc(data);
+  74:mcp2515.c     ****     SPI_CS_H;
+ 194               	515_write_register, .-mcp2515_write_register
+ 195               	.Lscope3:
+  75:mcp2515.c     **** }
+ 198               	bal	mcp2515_read_register
+ 200 0042 0895      	mcp2515_read_register:
+ 202               	.LM24:
+ 203               	.LFBB4:
+ 204               	/* prologue: function */
+ 205               	/* frame size = 0 */
+ 206               		mov r25,r24
+  76:mcp2515.c     **** 
+  77:mcp2515.c     **** 
+  78:mcp2515.c     **** unsigned char mcp2515_read_register(unsigned char adress)
+  79:mcp2515.c     **** {
+ 208               	i 37-32,2
+ 209               	.LBB46:
+ 210               	.LBB47:
+ 212               	.LM26:
+ 213 0044 982F      		ldi r24,lo8(3)
+  80:mcp2515.c     ****     unsigned char data;
+  81:mcp2515.c     ****     SPI_CS_L;
+ 214               	8-32,r24
+ 215               	.L16:
+ 217               	.LM27:
+ 218               		in __tmp_reg__,77-32
+ 219               		sbrs __tmp_reg__,7
+ 220               		rjmp .L16
+ 222 004a 8EBD      	.LM28:
+ 223               		in r24,78-32
+ 224               	.LBE47:
+ 225               	.LBE46:
+ 226 004c 0DB4      	.LBB48:
+ 227 004e 07FE      	.LBB49:
+ 229               	.LM29:
+ 230               		out 78-32,r25
+ 231 0052 8EB5      	.L17:
+ 233               	.LM30:
+ 234               		in __tmp_reg__,77-32
+ 235               		sbrs __tmp_reg__,7
+ 236               		rjmp .L17
+ 238 0054 9EBD      	.LM31:
+ 239               		in r24,78-32
+ 240               	.LBE49:
+ 241               	.LBE48:
+ 242 0056 0DB4      	.LBB50:
+ 243 0058 07FE      	.LBB51:
+ 245               	.LM32:
+ 246               		ldi r24,lo8(-1)
+ 247 005c 8EB5      		out 78-32,r24
+ 248               	.L18:
+ 250               	.LM33:
+ 251               		in __tmp_reg__,77-32
+ 252               		sbrs __tmp_reg__,7
+ 253               		rjmp .L18
+ 255 0060 8EBD      	.LM34:
+ 256               		in r24,78-32
+ 257               	.LBE51:
+ 258               	.LBE50:
+ 260 0064 07FE      	.LM35:
+ 261 0066 00C0      		sbi 37-32,2
+ 262               	/* epilogue start */
+ 264 0068 8EB5      	.LM36:
+ 265               		ret
+  82:mcp2515.c     ****     spi_putc(SPI_READ);
+  83:mcp2515.c     ****     spi_putc(adress);
+  84:mcp2515.c     ****     data = spi_putc(0xff);
+  85:mcp2515.c     ****     SPI_CS_H;
+ 267               	B4-.LFBB4
+ 269 006a 2A9A      	.Lscope4:
+  86:mcp2515.c     ****     return data;
+  87:mcp2515.c     **** }
+ 271               	abs	"adress:P(0,11)",64,0,0,25
+ 272               	.global	mcp2515_read_rx_buffer
+ 274               	mcp2515_read_rx_buffer:
+ 276               	.LM37:
+ 277               	.LFBB5:
+ 278               	/* prologue: function */
+ 279               	/* frame size = 0 */
+ 280               		mov r25,r24
+ 282               	.LM38:
+ 283               		andi r24,lo8(-7)
+  88:mcp2515.c     **** 
+  89:mcp2515.c     **** 
+  90:mcp2515.c     **** unsigned char mcp2515_read_rx_buffer(unsigned char adress)
+  91:mcp2515.c     **** {
+ 284               	di r24,lo8(0)
+ 285               		ret
+ 286               	.L24:
+ 288               	.LM39:
+ 289 006e 982F      		cbi 37-32,2
+  92:mcp2515.c     ****     unsigned char data;
+  93:mcp2515.c     ****     /* Überprüfen ob die Adresse richtig ist */
+  94:mcp2515.c     ****     if (adress & 0xF9)
+ 290               	n	68,0,97,.LM40-.LFBB5
+ 291               	.LM40:
+ 292 0070 897F      		ori r25,lo8(-112)
+ 293 0072 01F0      	.LBB52:
+ 294 0074 80E0      	.LBB53:
+ 296               	.LM41:
+  95:mcp2515.c     ****         return 0;
+  96:mcp2515.c     ****     SPI_CS_L;
+ 297               	-32,r25
+ 298               	.L26:
+  97:mcp2515.c     ****     spi_putc(SPI_READ_RX | adress);
+ 300               	42:
+ 301               		in __tmp_reg__,77-32
+ 302 007a 9069      		sbrs __tmp_reg__,7
+ 303               		rjmp .L26
+ 305               	.LM43:
+ 306               		in r24,78-32
+ 307 007c 9EBD      	.LBE53:
+ 308               	.LBE52:
+ 309               	.LBB54:
+ 310               	.LBB55:
+ 312 0080 07FE      	.LM44:
+ 313 0082 00C0      		ldi r24,lo8(-1)
+ 314               		out 78-32,r24
+ 315               	.L27:
+ 317               	.LM45:
+ 318               		in __tmp_reg__,77-32
+ 319               		sbrs __tmp_reg__,7
+ 320               		rjmp .L27
+ 322               	.LM46:
+ 323 0086 8FEF      		in r24,78-32
+ 324 0088 8EBD      	.LBE55:
+ 325               	.LBE54:
+ 327               	.LM47:
+ 328 008a 0DB4      		sbi 37-32,2
+ 330 008e 00C0      	.LM48:
+ 331               		ret
+  98:mcp2515.c     ****     data = spi_putc(0xff);
+  99:mcp2515.c     ****     SPI_CS_H;
+ 336               	y:F(0,15)",36,0,0,mcp2515_bit_modify
+ 100:mcp2515.c     ****     return data;
+ 101:mcp2515.c     **** }
+ 339               	tabs	"data:P(0,11)",64,0,0,20
+ 340               	.global	mcp2515_bit_modify
+ 342               	mcp2515_bit_modify:
+ 344               	.LM49:
+ 345               	.LFBB6:
+ 346               	/* prologue: function */
+ 347               	/* frame size = 0 */
+ 348               		mov r25,r24
+ 350               	.LM50:
+ 351               		cbi 37-32,2
+ 352               	.LBB56:
+ 353               	.LBB57:
+ 102:mcp2515.c     **** 
+ 103:mcp2515.c     **** 
+ 104:mcp2515.c     **** void mcp2515_bit_modify(unsigned char adress, unsigned char mask, unsigned char data)
+ 105:mcp2515.c     **** {
+ 354               	,.LM51-.LFBB6
+ 355               	.LM51:
+ 356               		ldi r24,lo8(5)
+ 357               		out 78-32,r24
+ 358               	.L32:
+ 106:mcp2515.c     ****     SPI_CS_L;
+ 360               	
+ 361               		in __tmp_reg__,77-32
+ 362 0098 2A98      		sbrs __tmp_reg__,7
+ 363               		rjmp .L32
+ 365               	.LM53:
+ 366               		in r24,78-32
+ 367 009a 85E0      	.LBE57:
+ 368 009c 8EBD      	.LBE56:
+ 369               	.LBB58:
+ 370               	.LBB59:
+ 372 009e 0DB4      	.LM54:
+ 373 00a0 07FE      		out 78-32,r25
+ 374 00a2 00C0      	.L33:
+ 376               	.LM55:
+ 377 00a4 8EB5      		in __tmp_reg__,77-32
+ 378               		sbrs __tmp_reg__,7
+ 379               		rjmp .L33
+ 381               	.LM56:
+ 382               		in r24,78-32
+ 383               	.LBE59:
+ 384 00a6 9EBD      	.LBE58:
+ 385               	.LBB60:
+ 386               	.LBB61:
+ 388 00a8 0DB4      	.LM57:
+ 389 00aa 07FE      		out 78-32,r22
+ 390 00ac 00C0      	.L34:
+ 392               	.LM58:
+ 393 00ae 8EB5      		in __tmp_reg__,77-32
+ 394               		sbrs __tmp_reg__,7
+ 395               		rjmp .L34
+ 397               	.LM59:
+ 398               		in r24,78-32
+ 399               	.LBE61:
+ 400 00b0 6EBD      	.LBE60:
+ 401               	.LBB62:
+ 402               	.LBB63:
+ 404 00b2 0DB4      	.LM60:
+ 405 00b4 07FE      		out 78-32,r20
+ 406 00b6 00C0      	.L35:
+ 408               	.LM61:
+ 409 00b8 8EB5      		in __tmp_reg__,77-32
+ 410               		sbrs __tmp_reg__,7
+ 411               		rjmp .L35
+ 413               	.LM62:
+ 414               		in r24,78-32
+ 415               	.LBE63:
+ 416 00ba 4EBD      	.LBE62:
+ 418               	.LM63:
+ 419               		sbi 37-32,2
+ 420 00bc 0DB4      	/* epilogue start */
+ 422 00c0 00C0      	.LM64:
+ 423               		ret
+ 425 00c2 8EB5      	.Lscope6:
+ 107:mcp2515.c     ****     spi_putc(SPI_BIT_MODIFY);
+ 108:mcp2515.c     ****     spi_putc(adress);
+ 109:mcp2515.c     ****     spi_putc(mask);
+ 110:mcp2515.c     ****     spi_putc(data);
+ 111:mcp2515.c     ****     SPI_CS_H;
+ 428               	
+ 430 00c4 2A9A      	mcp2515_write_register_p:
+ 112:mcp2515.c     **** }
+ 432               	65:
+ 433               	.LFBB7:
+ 434 00c6 0895      	/* prologue: function */
+ 435               	/* frame size = 0 */
+ 436               		mov r25,r24
+ 438               	.LM66:
+ 439               		cbi 37-32,2
+ 440               	.LBB64:
+ 441               	.LBB65:
+ 113:mcp2515.c     **** 
+ 114:mcp2515.c     **** /*
+ 115:mcp2515.c     ****  *	Beschreibt mehrere Register auf einmal
+ 116:mcp2515.c     ****  */
+ 117:mcp2515.c     **** void mcp2515_write_register_p( unsigned char adress, unsigned char *data, unsigned char length )
+ 118:mcp2515.c     **** {
+ 443               	 r24,lo8(2)
+ 444               		out 78-32,r24
+ 445               	.L42:
+ 447               	.LM68:
+ 448 00c8 982F      		in __tmp_reg__,77-32
+ 119:mcp2515.c     ****     unsigned char i;
+ 120:mcp2515.c     ****     SPI_CS_L;
+ 449               	__tmp_reg__,7
+ 450               		rjmp .L42
+ 452               	.LM69:
+ 453               		in r24,78-32
+ 454               	.LBE65:
+ 455               	.LBE64:
+ 456 00cc 82E0      	.LBB66:
+ 457 00ce 8EBD      	.LBB67:
+ 459               	.LM70:
+ 460               		out 78-32,r25
+ 461 00d0 0DB4      	.L43:
+ 463 00d4 00C0      	.LM71:
+ 464               		in __tmp_reg__,77-32
+ 465               		sbrs __tmp_reg__,7
+ 466 00d6 8EB5      		rjmp .L43
+ 468               	.LM72:
+ 469               		in r24,78-32
+ 470               		movw r30,r22
+ 471               		rjmp .L44
+ 472               	.L46:
+ 473 00d8 9EBD      	.LBE67:
+ 474               	.LBE66:
+ 476               	.LM73:
+ 477 00da 0DB4      		ld r24,Z
+ 478 00dc 07FE      	.LBB68:
+ 479 00de 00C0      	.LBB69:
+ 481               	.LM74:
+ 482 00e0 8EB5      		out 78-32,r24
+ 483 00e2 FB01      	.L45:
+ 485               	.LM75:
+ 486               		in __tmp_reg__,77-32
+ 487               		sbrs __tmp_reg__,7
+ 121:mcp2515.c     ****     spi_putc(SPI_WRITE);
+ 122:mcp2515.c     ****     spi_putc(adress);
+ 123:mcp2515.c     ****     for (i=0; i<length ;i++ )
+ 124:mcp2515.c     ****         spi_putc(*data++);
+ 488               	,124,.LM76-.LFBB7
+ 489               	.LM76:
+ 490 00e6 8081      		adiw r30,1
+ 491               	.LBB71:
+ 492               	.LBB70:
+ 494               	.LM77:
+ 495 00e8 8EBD      		in r24,78-32
+ 496               	.L44:
+ 497               	.LBE70:
+ 498               	.LBE71:
+ 500 00ec 07FE      	.LM78:
+ 501 00ee 00C0      		mov r24,r30
+ 502               		sub r24,r22
+ 503               		cp r24,r20
+ 504               		brlo .L46
+ 506 00f0 3196      	.LM79:
+ 507               		sbi 37-32,2
+ 508               	/* epilogue start */
+ 510               	.LM80:
+ 511 00f2 8EB5      		ret
+ 513               	.Lscope7:
+ 515               	.global	mcp2515_init
+ 517 00f4 8E2F      	mcp2515_init:
+ 519 00f8 8417      	.LM81:
+ 520 00fa 00F0      	.LFBB8:
+ 125:mcp2515.c     ****     SPI_CS_H;
+ 521               	sh r28
+ 522               		rcall .
+ 523 00fc 2A9A      		rcall .
+ 524               		in r28,__SP_L__
+ 126:mcp2515.c     **** }
+ 525               	r29,__SP_H__
+ 526               	/* prologue: function */
+ 527 00fe 0895      	/* frame size = 4 */
+ 529               	.LM82:
+ 530               		rcall spi_init
+ 532               	.LM83:
+ 533               		cbi 37-32,2
+ 534               	.LBB72:
+ 535               	.LBB73:
+ 537 0100 0F93      	.LM84:
+ 538 0102 1F93      		ldi r24,lo8(-64)
+ 539 0104 DF93      		out 78-32,r24
+ 540 0106 CF93      	.L52:
+ 542 010a 00D0      	.LM85:
+ 543 010c CDB7      		in __tmp_reg__,77-32
+ 544 010e DEB7      		sbrs __tmp_reg__,7
+ 545               		rjmp .L52
+ 547               	.LM86:
+ 548               		in r24,78-32
+ 549 0110 00D0      	.LBE73:
+ 550               	.LBE72:
+ 552 0112 2A98      	.LM87:
+ 553               		sbi 37-32,2
+ 555               	.LM88:
+ 556               		ldi r24,lo8(15)
+ 557 0114 80EC      		ldi r22,lo8(-32)
+ 558 0116 8EBD      		ldi r20,lo8(-128)
+ 559               		rcall mcp2515_bit_modify
+ 561               	.LM89:
+ 562 0118 0DB4      		ldi r24,lo8(42)
+ 563 011a 07FE      		ldi r22,lo8(3)
+ 564 011c 00C0      		rcall mcp2515_write_register
+ 566               	.LM90:
+ 567 011e 8EB5      		ldi r24,lo8(41)
+ 568               		ldi r22,lo8(-112)
+ 569               		rcall mcp2515_write_register
+ 571               	.LM91:
+ 572 0120 2A9A      		ldi r24,lo8(40)
+ 573               		ldi r22,lo8(3)
+ 574               		rcall mcp2515_write_register
+ 576 0124 60EE      	.LM92:
+ 577 0126 40E8      		ldi r24,lo8(43)
+ 578 0128 00D0      		ldi r22,lo8(3)
+ 579               		rcall mcp2515_write_register
+ 581 012a 8AE2      	.LM93:
+ 582 012c 63E0      		ldi r24,lo8(96)
+ 583 012e 00D0      		ldi r22,lo8(96)
+ 584               		rcall mcp2515_write_register
+ 586 0130 89E2      	.LM94:
+ 587 0132 60E9      		ldi r24,lo8(112)
+ 588 0134 00D0      		ldi r22,lo8(96)
+ 589               		rcall mcp2515_write_register
+ 591 0136 88E2      	.LM95:
+ 592 0138 63E0      		std Y+1,__zero_reg__
+ 593 013a 00D0      		std Y+2,__zero_reg__
+ 594               		std Y+3,__zero_reg__
+ 595               		std Y+4,__zero_reg__
+ 597 013e 63E0      	.LM96:
+ 598 0140 00D0      		ldi r24,lo8(0)
+ 599               		movw r16,r28
+ 600               		subi r16,lo8(-(1))
+ 601 0142 80E6      		sbci r17,hi8(-(1))
+ 602 0144 60E6      		movw r22,r16
+ 603 0146 00D0      		ldi r20,lo8(4)
+ 604               		rcall mcp2515_write_register_p
+ 606 0148 80E7      	.LM97:
+ 607 014a 60E6      		ldi r24,lo8(4)
+ 608 014c 00D0      		movw r22,r16
+ 609               		ldi r20,lo8(4)
+ 610               		rcall mcp2515_write_register_p
+ 612 0150 1A82      	.LM98:
+ 613 0152 1B82      		ldi r24,lo8(8)
+ 614 0154 1C82      		movw r22,r16
+ 615               		ldi r20,lo8(4)
+ 616               		rcall mcp2515_write_register_p
+ 618 0158 8E01      	.LM99:
+ 619 015a 0F5F      		ldi r24,lo8(16)
+ 620 015c 1F4F      		movw r22,r16
+ 621 015e B801      		ldi r20,lo8(4)
+ 622 0160 44E0      		rcall mcp2515_write_register_p
+ 624               	.LM100:
+ 625               		ldi r24,lo8(20)
+ 626 0164 84E0      		movw r22,r16
+ 627 0166 B801      		ldi r20,lo8(4)
+ 628 0168 44E0      		rcall mcp2515_write_register_p
+ 630               	.LM101:
+ 631               		ldi r24,lo8(24)
+ 632 016c 88E0      		movw r22,r16
+ 633 016e B801      		ldi r20,lo8(4)
+ 634 0170 44E0      		rcall mcp2515_write_register_p
+ 636               	.LM102:
+ 637               		ldi r24,lo8(32)
+ 638 0174 80E1      		movw r22,r16
+ 639 0176 B801      		ldi r20,lo8(4)
+ 640 0178 44E0      		rcall mcp2515_write_register_p
+ 642               	.LM103:
+ 643               		ldi r24,lo8(36)
+ 644 017c 84E1      		movw r22,r16
+ 645 017e B801      		ldi r20,lo8(4)
+ 646 0180 44E0      		rcall mcp2515_write_register_p
+ 648               	.LM104:
+ 649               		ldi r24,lo8(12)
+ 650 0184 88E1      		ldi r22,lo8(0)
+ 651 0186 B801      		rcall mcp2515_write_register
+ 653 018a 00D0      	.LM105:
+ 654               		ldi r24,lo8(13)
+ 655               		ldi r22,lo8(0)
+ 656 018c 80E2      		rcall mcp2515_write_register
+ 658 0190 44E0      	.LM106:
+ 659 0192 00D0      		ldi r24,lo8(15)
+ 660               		ldi r22,lo8(-32)
+ 661               		ldi r20,lo8(0)
+ 662 0194 84E2      		rcall mcp2515_bit_modify
+ 663 0196 B801      	/* epilogue start */
+ 665 019a 00D0      	.LM107:
+ 666               		pop __tmp_reg__
+ 667               		pop __tmp_reg__
+ 668 019c 8CE0      		pop __tmp_reg__
+ 669 019e 60E0      		pop __tmp_reg__
+ 670 01a0 00D0      		pop r28
+ 671               		pop r29
+ 672               		pop r17
+ 673 01a2 8DE0      		pop r16
+ 674 01a4 60E0      		ret
+ 679 01aa 60EE      	.Lscope8:
+ 683               	.global	mcp2515_read_register_p
+ 685 01b0 0F90      	mcp2515_read_register_p:
+ 687 01b4 0F90      	.LM108:
+ 688 01b6 0F90      	.LFBB9:
+ 689 01b8 CF91      	/* prologue: function */
+ 690 01ba DF91      	/* frame size = 0 */
+ 691 01bc 1F91      		mov r25,r24
+ 693 01c0 0895      	.LM109:
+ 694               		cbi 37-32,2
+ 695               	.LBB74:
+ 696               	.LBB75:
+ 698               	.LM110:
+ 699               		ldi r24,lo8(3)
+ 700               		out 78-32,r24
+ 701               	.L56:
+ 703               	.LM111:
+ 704               		in __tmp_reg__,77-32
+ 127:mcp2515.c     **** 
+ 128:mcp2515.c     **** 
+ 129:mcp2515.c     **** void mcp2515_read_register_p( unsigned char adress, unsigned char *data, unsigned char length )
+ 130:mcp2515.c     **** {
+ 705               	n	68,0,63,.LM114-.LFBB9
+ 706               	.LM114:
+ 707               		in __tmp_reg__,77-32
+ 708               		sbrs __tmp_reg__,7
+ 709               		rjmp .L57
+ 131:mcp2515.c     ****     unsigned char i;
+ 132:mcp2515.c     ****     SPI_CS_L;
+ 711               	_,7
+ 712               		rjmp .L57
+ 714               	.LM115:
+ 715               		in r24,78-32
+ 716               		movw r30,r22
+ 717               	.LBE77:
+ 718 01c6 83E0      	.LBE76:
+ 719 01c8 8EBD      	.LBB78:
+ 720               	.LBB79:
+ 722               	.LM116:
+ 723 01ca 0DB4      		ldi r25,lo8(-1)
+ 724 01cc 07FE      		rjmp .L58
+ 725 01ce 00C0      	.L60:
+ 726               		out 78-32,r25
+ 727               	.L59:
+ 729               	.LM117:
+ 730               		in __tmp_reg__,77-32
+ 731               		sbrs __tmp_reg__,7
+ 732               		rjmp .L59
+ 734               	.LM118:
+ 735 01d2 9EBD      		in r24,78-32
+ 736               	.LBE79:
+ 737               	.LBE78:
+ 739 01d4 0DB4      	.LM119:
+ 740 01d6 07FE      		st Z+,r24
+ 741 01d8 00C0      	.L58:
+ 743               	.LM120:
+ 744 01da 8EB5      		mov r24,r30
+ 745 01dc FB01      		sub r24,r22
+ 746               		cp r24,r20
+ 747               		brlo .L60
+ 749               	.LM121:
+ 750               		sbi 37-32,2
+ 751               	/* epilogue start */
+ 753 01e0 00C0      	.LM122:
+ 754               		ret
+ 756               	.Lscope9:
+ 758               	.Letext0:
+ 759 01e4 0DB4      	...
+ 133:mcp2515.c     ****     spi_putc(SPI_READ);
+ 134:mcp2515.c     ****     spi_putc(adress);
+ 135:mcp2515.c     ****     for (i=0; i<length ;i++ )
+ 136:mcp2515.c     ****         *data++ = spi_putc(0xff);
+ 137:mcp2515.c     ****     SPI_CS_H;
+ 138:mcp2515.c     **** }
+DEFINED SYMBOLS
+                            *ABS*:00000000 mcp2515.c
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:2      *ABS*:0000003f __SREG__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:3      *ABS*:0000003e __SP_H__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:4      *ABS*:0000003d __SP_L__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:5      *ABS*:00000034 __CCP__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:75     .text:00000000 spi_init
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:106    .text:00000010 spi_putc
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:135    .text:0000001c mcp2515_write_register
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:207    .text:00000044 mcp2515_read_register
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:283    .text:0000006e mcp2515_read_rx_buffer
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:353    .text:00000096 mcp2515_bit_modify
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:442    .text:000000c8 mcp2515_write_register_p
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:533    .text:00000100 mcp2515_init
+C:\Users\ADMINI~1\AppData\Local\Temp/ccUoteVH.s:704    .text:000001c2 mcp2515_read_register_p
+
+NO UNDEFINED SYMBOLS

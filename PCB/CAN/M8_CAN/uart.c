@@ -4,34 +4,35 @@
 #define RX_BUF_SIZE			(MESSAGE_BUF_SIZE * MAX_LAENGE)
 #define TX_BUF_MASK			(TX_BUF_SIZE - 1)
 
-static volatile uint8_t tx_buf[TX_BUF_SIZE];
-static volatile uint8_t tx_tail = 0;
-static volatile uint8_t tx_head = 0;
+static volatile unsigned char tx_buf[TX_BUF_SIZE];
+static volatile unsigned char tx_tail = 0;
+static volatile unsigned char tx_head = 0;
 void uart_init(void);
-void uart_putc(uint8_t data);
+void uart_putc(unsigned char data);
 void uart_puts_p(const char *progmem_s);
-void uart_put_dec(uint16_t wert, uint8_t anzahl, uint8_t fuell);
-void uart_put_hex(uint8_t wert);
+void uart_put_dec(uint16_t wert, unsigned char anzahl, unsigned char fuell);
+void uart_put_hex(unsigned char wert);
 
 void uart_init(void)
 {
-    UBRRH = (uint8_t) (UBRR_BAUD>>8);
-    UBRRL = (uint8_t) UBRR_BAUD & 0x00FF;
-    UCSRB = (1<<RXCIE)|(1<<RXEN)|(1<<TXEN);
-    UCSRC = (1<<URSEL)|(1<<UCSZ1)|(1<<UCSZ0);
+	
+	UBRR0H = (unsigned char) (UBRR_BAUD>>8);
+    UBRR0L = (unsigned char) UBRR_BAUD & 0x00FF;
+    UCSR0B = 1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0;
+    UCSR0C = 1<<UCSZ00 | 1<<UCSZ01;
 }
 
 
-void uart_putc(uint8_t data)
+void uart_putc(unsigned char data)
 {
-    uint8_t tmphead;
+    unsigned char tmphead;
     if (data == '\n')
         uart_putc('\r');
     tmphead  = (tx_head + 1) & TX_BUF_MASK;
     while ( tmphead == tx_tail );
     tx_buf[tmphead] = data;
     tx_head = tmphead;
-    UCSRB |= (1<<UDRIE);
+    UCSR0B |= (1<<UDRIE0);
 }
 
 
@@ -43,9 +44,9 @@ void uart_puts_p(const char *progmem_s)
 }
 
 
-void uart_put_dec(uint16_t wert, uint8_t anzahl, uint8_t fuell)
+void uart_put_dec(uint16_t wert, unsigned char anzahl, unsigned char fuell)
 {
-    uint8_t i, s[10];
+    unsigned char i, s[10];
     for (i = 0; i < anzahl; i++)
     {
         s[anzahl - i - 1] = '0' + (wert % 10);
@@ -65,9 +66,9 @@ void uart_put_dec(uint16_t wert, uint8_t anzahl, uint8_t fuell)
 }
 
 
-void uart_put_hex(uint8_t wert)
+void uart_put_hex(unsigned char wert)
 {
-    uint8_t hi,low;
+    unsigned char hi,low;
 
     /* Obere 4-bit */
     hi = wert & 0xf0;
@@ -84,21 +85,21 @@ void uart_put_hex(uint8_t wert)
     uart_putc(low);
 }
 
-SIGNAL(SIG_UART_RECV)          // 串口中断接收
+SIGNAL(USART_RX_vect)          // 串口中断接收
 {
-    uint8_t buffer;
-    buffer = UDR;
+    unsigned char buffer;
+    buffer = UDR0;
 }
 
-SIGNAL(SIG_UART_DATA)           // 中断发送
+SIGNAL(USART_TX_vect)           // 中断发送
 {
-    uint8_t tmptail;
+    unsigned char tmptail;
     if ( tx_head != tx_tail )
     {
         tmptail = (tx_tail + 1) & TX_BUF_MASK;
         tx_tail = tmptail;
-        UDR = tx_buf[tmptail];  /* Starte 躡ertragung */
+        UDR0 = tx_buf[tmptail];  /* Starte 躡ertragung */
     }
     else
-        UCSRB &= ~(1<<UDRIE);
+        UCSR0B &= ~(1<<UDRIE0);
 }
