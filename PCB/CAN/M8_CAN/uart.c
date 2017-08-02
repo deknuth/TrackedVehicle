@@ -15,11 +15,28 @@ void uart_put_hex(unsigned char wert);
 
 void uart_init(void)
 {
-	
 	UBRR0H = (unsigned char) (UBRR_BAUD>>8);
     UBRR0L = (unsigned char) UBRR_BAUD & 0x00FF;
     UCSR0B = 1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0;
     UCSR0C = 1<<UCSZ00 | 1<<UCSZ01;
+}
+
+void UartInit(void)
+{
+    UBRR0H = (F_CPU / BAUD / 16 - 1) / 256;
+    UBRR0L = (F_CPU / BAUD / 16 - 1) % 256;
+    UCSR0B = 1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0;
+    UCSR0C = 1<<UCSZ00 | 1<<UCSZ01;
+}
+
+void SendStr(unsigned char* data,unsigned char len)
+{
+    unsigned char i;
+    for(i=0; i<len; i++)
+    {
+        while(!(UCSR0A & (1 << UDRE0)));
+        UDR0 = *(data++);
+    }
 }
 
 
@@ -81,8 +98,8 @@ void uart_put_hex(unsigned char wert)
     low = ( wert & 0x0f ) + '0';
     if (low > '9')
         low += 7;				// A..F
-    uart_putc(hi);
-    uart_putc(low);
+    SendStr(&hi,1);
+    SendStr(&low,1);
 }
 
 SIGNAL(USART_RX_vect)          // 串口中断接收

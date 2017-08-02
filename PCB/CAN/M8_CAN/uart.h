@@ -33,6 +33,7 @@ extern void uart_init(void);
 extern void uart_putc(uint8_t data);
 
 extern void uart_puts_p(const char *progmem_s);
+extern void UartInit(void);
 
 /**
  * @brief 	Gibt einen Integer ( 0..65535 ) mit oder ohne führende Nullen aus

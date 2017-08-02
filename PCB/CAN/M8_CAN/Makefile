@@ -60,7 +60,7 @@ TARGET = main
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c mcp2515.c can.c uart.c
+SRC = $(TARGET).c mcp2515.c uart.c
 
 
 # List Assembler source files here.
