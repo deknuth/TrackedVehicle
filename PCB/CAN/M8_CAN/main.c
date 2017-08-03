@@ -12,7 +12,7 @@ void delay(unsigned int ms);
 
 void PortInit(void)
 {
-	DDRD = 0B10000000;		// PD7->CAN_RST		low active
+	DDRD = 0B10000010;		// PD7->CAN_RST		low active
 	PORTD= 0B10000000;
 	PIND = 0x00;
 
@@ -48,29 +48,32 @@ ISR(INT0_vect)
 
 void CAN2_Test(unsigned char num) 
 {
-  unsigned char i;
-  struct can_msg msg_send;
+  	unsigned char i;
+  	struct can_msg msg_send;
   
-  msg_send.data[0]=0x08;
-  msg_send.data[1]=0x07;
-  msg_send.data[2]=0x06;
-  msg_send.data[3]=0x05;
-  msg_send.data[4]=0x04;
-  msg_send.data[5]=0x03;
-  msg_send.data[6]=0x02;
-  msg_send.data[7]=0x01;    
+  	msg_send.data[0]=0x08;
+  	msg_send.data[1]=0x07;
+  	msg_send.data[2]=0x06;
+  	msg_send.data[3]=0x05;
+  	msg_send.data[4]=0x04;
+  	msg_send.data[5]=0x03;
+  	msg_send.data[6]=0x02;
+  	msg_send.data[7]=0x01;    
 
   
-  for(i=0;i<num;i++) 
-  {  
-    //CAN发送 
-    msg_send.id  = ID_TX;  //数据ID号
-    msg_send.len = 8;
-    msg_send.RTR = 0;
-    msg_send.prty = 0;
-    (void)MSCAN2SendMsg(msg_send);
-    _delay_ms(100);
-  }  
+  	for(i=0;i<num;i++) 
+  	{  
+    	//CAN发送 
+    	msg_send.id  = ID_TX;  //数据ID号
+    	msg_send.len = 8;
+    	msg_send.RTR = 0;
+    	msg_send.prty = 0;
+    	(void)MSCAN2SendMsg(msg_send);
+		MCP2515_ByteRead(CNF1);
+    	_delay_ms(100);
+		PORTD^=0x02;
+    	FEED_DOG;
+  	}  
 }
 
 
@@ -78,7 +81,7 @@ int main(void)
 {
 	PortInit();
 	InterInit();
-	UartInit();
+//	UartInit();
 //	blink(3);
 //	SendStr("abdd",4);
 	FEED_DOG;
@@ -86,7 +89,10 @@ int main(void)
 	unsigned char temp, rtr = 0;
     unsigned char daten[8] = { 0x7B, 0x0F, 0x8E, 0x15, 0xC2, 0xAA, 0xAA, 0xFF };
 	while(1)
+	{
 		CAN2_Test(4);
+		FEED_DOG;
+	}
 	
 #if 0
     while(1)

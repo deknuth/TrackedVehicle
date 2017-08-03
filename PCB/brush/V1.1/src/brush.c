@@ -35,9 +35,10 @@
 #define T0_ON 	{ TCNT0=0; TCCR0B|=1<<CS00; TIMSK0|=1<<TOIE0; }			// ppm count 0 divide
 #define T0_OFF 	{ TCCR0B&=~(1<<CS01); TIMSK0&=~(1<<TOIE0); }
 
-volatile unsigned int count = 0;		// timing
+#define FAN_ON	PORTD|=0x80
+#define FAN_OFF	PORTD&=~0x80
 
-const unsigned int porp[256] = {
+const unsigned char porp[256] = {
 	0,0,0,0,0,1,2,3,4,5,
 	6,7,8,9,10,11,12,13,14,15,
 	16,17,18,19,20,21,22,23,24,25,
@@ -73,9 +74,7 @@ enum LED{
 	FALT = (1<<5),
 };
 
-
 enum MOS{
-	
 	AD2H = 1,
 	AD1H = 2,
 	BD2H = 4,
@@ -86,7 +85,7 @@ enum MOS{
 	DOG = 0x40,
 };
 
-void PortInt(void)
+void PortInit(void)
 {
 	DDRB =  0B00111110;		// PB1(PWMB),PB2(PWBA),PB3(D3),PB4(D4),PB5(D5)
 	PORTB = 0B00000000;		
@@ -110,9 +109,9 @@ void T2Int(void)			// Bootstraps pwm
 
 void T1Int(void)					
 {	
+	OCR1A = OCR1B = 0x00;
 	TCCR1A = 1<<COM1A1 | 1<<COM1B1 | 1<<WGM10;	// 8 bit  phase correction PWM (CS31 CS21 CS11 divid bit) 15.68K
 	TCCR1B = 1<<CS10;							// 0 divid
-	OCR1A = OCR1B = 0x00;
 }
 
 void EiInit(void)
@@ -126,13 +125,12 @@ void EiInit(void)
 * Aref voltage: 2.5V
 * sampling frequency 64 divide: 172.8KHz
 **************************************/
-
 void ADCInit(void)
 {
 	ADMUX =  1<<REFS0 | 1<<ADLAR;	// Avcc Ref  左对齐
-	ADCSRA = 1<<ADPS2 | 1<<ADPS0 | 1<<ADEN ;	//| 1<<ADATE ;		// 32分频
-//	ADCSRB = 0x00;							// 连续转换模式
-	DIDR0 = 1<<BIT(0) | 1<<BIT(1);			// 数字输入禁止
+	ADCSRA = 1<<ADPS2 | 1<<ADPS1 | 1<<ADEN;	//| 1<<ADATE ;		// 32分频
+	ADCSRB = 0x00;						
+	DIDR0 = 0xE0;			// 数字输入禁止	ADC5.6.7
 }
 
 unsigned int AdConvert(unsigned char channal)
@@ -140,38 +138,37 @@ unsigned int AdConvert(unsigned char channal)
 	unsigned int c_value = 0;
 	ADMUX |= channal;
 	ADCSRA |= 1<<ADSC;					// start converter
-	while (((ADCSRA & 0x10) == 1));		// wait converter over
-//	ADCSRA |= 0x10;    
+	while ((ADCSRA & 0x10) == 0);			// wait converter over
 	ADCSRA &= ~(1<<ADSC);				// stop converter
+	ADCSRA |= 0x10;
 	c_value = ADCH;
 	c_value <<= 2;
 	c_value |= (ADCL>>6);
-	ADMUX &=  0xF0;
+	ADMUX &= 0xF0;
 	return(c_value);
 }
-
 
 void display(void)
 {
 	D4_ON;
 	D5_OFF;
 	BEEP;
-	_delay_ms(400);
+	_delay_ms(200);
 	FEED_DOG;
 	D5_ON;
 	D4_OFF;
 	BEEP;
-	_delay_ms(400);
+	_delay_ms(200);
 	FEED_DOG;
 	D4_ON;
 	D5_OFF;
 	BEEP;
-	_delay_ms(400);
+	_delay_ms(200);
 	FEED_DOG;
 	D5_ON;
 	D4_OFF;
 	BEEP;
-	_delay_ms(400);
+	_delay_ms(200);
 	FEED_DOG;
 	D5_OFF;
 	BEEP_OFF;
@@ -266,7 +263,7 @@ int history[2] = {-1,-1};
 
 void move(int LV,int RV)
 {
-	//if((LV&0x8000) != (history[0]&0x8000))		// -
+	//if((LV&0x8000) != (history[0]&0x8000))		// 
 	{
 		if(LV > 0)
 		{
@@ -311,34 +308,52 @@ void move(int LV,int RV)
 	OCR1B = RV>>1;
 }
 
-void CloseHB(void)		// close H bridge
+void CloseHB(void)		// close H bridge and break
 {
-	PORTC |= AD1H;		// AD1H close
-	PORTC |= AD2H;		// AD2H close
-	PORTC |= BD1H;		// BD1H close
-	PORTC |= BD2H;		// BD2H close
+	OCR1A = OCR1B = 0x00;
+	_delay_us(5);
+	PORTC &= ~AD1H;		// AD1H open
+	PORTC &= ~AD2H;		// AD2H open
+	PORTC &= ~BD1H;		// BD1H open
+	PORTC &= ~BD2H;		// BD2H open
 }
 
 int main(void)
 {
+	cli();
 	unsigned int volt = 0;
 	unsigned int curr = 0;
 	unsigned int vCount = 0;
 	unsigned int lCount = 0;
-	int cCount = 0;
+	unsigned int tCount = 0;
 	unsigned char overCurr = 1;
+	unsigned int temp = 0;
+	int cCount = 0;
 	
-	PortInt();
+	PortInit();
 	display();
-	
-	CloseHB();
 	T1Int();
 	T2Int();
 	ADCInit();
 	SREG |= BIT(7);
+	CloseHB();
 	EiInit();
-	move(0,0);		// init hitory
 	
+//	move(0,0);		// init hitory
+	while(1)		// drop six time signal
+	{
+		FEED_DOG;
+		if(lost==3)
+		{
+			lost = 0;
+			if(volt++ > 6)
+				break;
+		}
+		_delay_us(500);
+		if(curr++ > 15000)
+			break;
+	}
+	volt = curr = 0;
 	while(1)
 	{
 		FEED_DOG;
@@ -346,7 +361,7 @@ int main(void)
 		{
 			D4_BLINK;
 			lCount = 0;
-			if(s1Ready)
+//			if(s1Ready)
 			{
 				s1Ready = 0;		
 				s1Count -= 1500;
@@ -363,13 +378,19 @@ int main(void)
 					PORTC |= BD2H;
 					PORTC &= ~BD1H;
 				}
-				if(s1Count > 508)
-					s1Count = 508;
-				OCR1A = s1Count>>1;
+				if(s1Count > 511)
+					s1Count = 511;
+				s1Count >>= 1;
+				OCR1A = porp[s1Count];
+				if(porp[s1Count] == 0)		// car break
+				{
+					PORTC &= ~BD2H;
+					PORTC &= ~BD1H;
+				}
 				lost &= ~(0x2);
 			}
 		
-			if(s0Ready)
+//			if(s0Ready)
 			{
 				s0Ready = 0;
 				s0Count -= 1500;
@@ -387,16 +408,26 @@ int main(void)
 					PORTC &= ~AD1H;
 				}
 				
-				if(s0Count > 508)
-					s0Count = 508;
-				OCR1B = s0Count>>1;
+				if(s0Count > 511)
+					s0Count = 511;
+				s0Count >>= 1;
+				OCR1B = porp[s0Count];
+				if(porp[s0Count] == 0)
+				{
+					PORTC &= ~AD2H;		// AD2H open
+					PORTC &= ~AD1H;		
+				}
 				lost &= ~(0x1);
 			}
 		}
 		
+	//	temp = AdConvert(5);
 		volt = AdConvert(6);
+		curr = AdConvert(7);
+		
 		if(volt < 240)
 		{
+			
 			if(vCount++>40000)
 			{
 				if(vCount < 46000)	
@@ -414,7 +445,7 @@ int main(void)
 			BEEP_OFF;
 		}
 		
-		curr = AdConvert(7);
+
 		if(curr > 1010)
 		{
 			if(cCount++>2000)
@@ -436,6 +467,20 @@ int main(void)
 		}
 		
 		
+		if(temp < 358)
+		{
+			if(tCount++ > 5000)
+			{
+				tCount = 0;
+				FAN_ON;
+			}
+		}
+		else if(tCount-- < -3000)
+		{
+			tCount = 0;
+			FAN_OFF;
+		}
+
 		if(lCount++ > 6000)
 		{
 			lost = 0;			// lost control

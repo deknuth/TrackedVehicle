@@ -62,7 +62,7 @@ MCU = atmega48p
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 8000000
+F_CPU = 7372800
 
 
 # Output format. (can be srec, ihex, binary)

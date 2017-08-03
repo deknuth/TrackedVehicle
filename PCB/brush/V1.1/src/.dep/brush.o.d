@@ -1,1 +1,0 @@
-brush.o: brush.c
