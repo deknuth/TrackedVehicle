@@ -456,7 +456,7 @@ int main(void)
 		}
 		
 
-		if(curr > 1010)
+		if(curr > 600)
 		{
 			if(cCount++>650)		// 130ms
 			{
