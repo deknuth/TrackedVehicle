@@ -79,6 +79,9 @@ ClassGenCCAutoEnabled=1
 ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 
+[GeneratedDocument1]
+DocumentPath=db.PcbDoc.htm
+
 [OutputGroup1]
 Name=Netlist Outputs
 Description=

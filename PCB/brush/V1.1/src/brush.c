@@ -39,7 +39,7 @@
 #define FAN_OFF	PORTD&=~0x80
 
 const unsigned char porp[256] = {
-	0,0,0,0,0,1,2,3,4,5,
+	0,0,0,0,0,0,0,0,0,0,
 	6,7,8,9,10,11,12,13,14,15,
 	16,17,18,19,20,21,22,23,24,25,
 	26,27,28,29,30,31,32,33,34,35,
@@ -128,24 +128,18 @@ void EiInit(void)
 void ADCInit(void)
 {
 	ADMUX =  1<<REFS0 | 1<<ADLAR;	// Avcc Ref  ×ó¶ÔÆë
-	ADCSRA = 1<<ADPS2 | 1<<ADPS1 | 1<<ADEN;	//| 1<<ADATE ;		// 32·ÖÆµ
+	ADCSRA = 1<<ADPS2 | 1<<ADPS0 | 1<<ADEN;	//| 1<<ADATE ;		// 32·ÖÆµ
 	ADCSRB = 0x00;						
 	DIDR0 = 0xE0;			// Êý×ÖÊäÈë½ûÖ¹	ADC5.6.7
 }
 
 unsigned int AdConvert(unsigned char channal)
 {
-	unsigned int c_value = 0;
 	ADMUX |= channal;
 	ADCSRA |= 1<<ADSC;					// start converter
-	while ((ADCSRA & 0x10) == 0);			// wait converter over
-	ADCSRA &= ~(1<<ADSC);				// stop converter
-	ADCSRA |= 0x10;
-	c_value = ADCH;
-	c_value <<= 2;
-	c_value |= (ADCL>>6);
+	while ((ADCSRA & 0x40));			// wait converter over  ADSC==0 on converter over
 	ADMUX &= 0xF0;
-	return(c_value);
+	return(ADCH);
 }
 
 void display(void)
@@ -336,7 +330,6 @@ int main(void)
 	T2Int();
 	ADCInit();
 	SREG |= BIT(7);
-	CloseHB();
 	EiInit();
 	
 //	move(0,0);		// init hitory
@@ -361,76 +354,93 @@ int main(void)
 		{
 			D4_BLINK;
 			lCount = 0;
-//			if(s1Ready)
+	//		if(s1Ready)
 			{
 				s1Ready = 0;		
 				s1Count -= 1500;
-				if(s1Count > 0)
+				if(s1Count > 22)
 				{
 					PORTD &= ~DRB;
 					PORTC |= BD1H;
 					PORTC &= ~BD2H;
+					s1Count >>= 1;
 				}
-				else
+				else if(s1Count < -22)
 				{
 					s1Count = abs(s1Count);
 					PORTD |= DRB;
 					PORTC |= BD2H;
 					PORTC &= ~BD1H;
+					s1Count >>= 1;
 				}
-				if(s1Count > 511)
-					s1Count = 511;
-				s1Count >>= 1;
-				OCR1A = porp[s1Count];
-				if(porp[s1Count] == 0)		// car break
+				else		// break;
 				{
-					PORTC &= ~BD2H;
+					OCR1A = 0;
+					_delay_us(5);
 					PORTC &= ~BD1H;
+					PORTC &= ~BD2H;
+					s1Count = 0;
 				}
+				if(s1Count>511)
+				{
+					if(s1Count>530)
+						s1Count = 0;
+					else	
+						s1Count = 511;
+				}
+				OCR1A = porp[s1Count];
 				lost &= ~(0x2);
 			}
 		
-//			if(s0Ready)
+	//		if(s0Ready)
 			{
 				s0Ready = 0;
 				s0Count -= 1500;
-				if(s0Count > 0)
+				if(s0Count > 22)
 				{
 					PORTD &= ~DRA;
 					PORTC |= AD1H;		// AD1H close
 					PORTC &= ~AD2H;		// AD2H open
+					s0Count >>= 1;
 				}
-				else
+				else if(s0Count < -22)
 				{
 					s0Count = abs(s0Count);
 					PORTD |= DRA;
 					PORTC |= AD2H;
 					PORTC &= ~AD1H;
+					s0Count >>= 1;
 				}
-				
-				if(s0Count > 511)
-					s0Count = 511;
-				s0Count >>= 1;
-				OCR1B = porp[s0Count];
-				if(porp[s0Count] == 0)
+				else
 				{
-					PORTC &= ~AD2H;		// AD2H open
-					PORTC &= ~AD1H;		
+					OCR1B = 0;
+					_delay_us(5);
+					PORTC &= ~AD1H;
+					PORTC &= ~AD2H;
+					s0Count = 0;
 				}
+				if(s0Count > 511)
+				{
+					if(s0Count > 530)	
+						s0Count = 0;
+					else
+						s0Count = 511;
+				}
+				OCR1B = porp[s0Count];
 				lost &= ~(0x1);
 			}
 		}
 		
-	//	temp = AdConvert(5);
-		volt = AdConvert(6);
-		curr = AdConvert(7);
+		temp = (AdConvert(5)<<2);
+		volt = (AdConvert(6)<<2);
+		curr = (AdConvert(7)<<2);
 		
 		if(volt < 240)
 		{
 			
-			if(vCount++>40000)
+			if(vCount++>6000)
 			{
-				if(vCount < 46000)	
+				if(vCount < 7200)	
 					BEEP_ON;
 				else
 				{
@@ -448,7 +458,7 @@ int main(void)
 
 		if(curr > 1010)
 		{
-			if(cCount++>2000)
+			if(cCount++>650)		// 130ms
 			{
 				D5_ON;
 				overCurr = 0;
@@ -458,7 +468,7 @@ int main(void)
 		}
 		else
 		{
-			if(cCount-- < -32000)
+			if(cCount-- < -10000)		// wait for two second
 			{
 				D5_OFF;
 				overCurr = 1;
@@ -466,27 +476,26 @@ int main(void)
 			}
 		}
 		
-		
-		if(temp < 358)
+		if(temp < 362)
 		{
-			if(tCount++ > 5000)
+			if(tCount++ > 2000)
 			{
 				tCount = 0;
 				FAN_ON;
 			}
 		}
-		else if(tCount-- < -3000)
+		else if(tCount-- < -2000)
 		{
 			tCount = 0;
 			FAN_OFF;
 		}
 
-		if(lCount++ > 6000)
+		if(lCount++ > 1400)
 		{
+			D4_BLINK;
 			lost = 0;			// lost control
 			lCount = 0;
-			D4_OFF;
-			OCR1A = OCR1B = 0;
+			CloseHB();
 		}
 	}
 }
