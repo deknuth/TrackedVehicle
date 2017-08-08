@@ -461,6 +461,7 @@ int main(void)
 			if(cCount++>650)		// 130ms
 			{
 				D5_ON;
+				BEEP_ON;
 				overCurr = 0;
 				OCR1A = OCR1B = 0;
 				cCount = 0;
@@ -471,6 +472,7 @@ int main(void)
 			if(cCount-- < -10000)		// wait for two second
 			{
 				D5_OFF;
+				BEEP_OFF;
 				overCurr = 1;
 				cCount = 0;
 			}
