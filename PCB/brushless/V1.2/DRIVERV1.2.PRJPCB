@@ -14,7 +14,7 @@ PinSwapBy_Pin=1
 AllowPortNetNames=0
 AllowSheetEntryNetNames=1
 AppendSheetNumberToLocalNets=0
-DefaultConfiguration=
+DefaultConfiguration=Default Configuration
 UserID=0xFFFFFFFF
 DefaultPcbProtel=1
 DefaultPcbPcad=0
@@ -24,7 +24,7 @@ PowerPortNamesTakePriority=0
 PushECOToAnnotationFile=1
 
 [Document1]
-DocumentPath=driverV1.1.PcbDoc
+DocumentPath=driverV1.2.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -38,21 +38,23 @@ ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 
 [Document2]
-DocumentPath=driverV1.1.SCH
+DocumentPath=driverV1.2.SCH
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=0
+AnnotateOrder=-1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
 ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 
-[GeneratedDocument1]
-DocumentPath=ProjectOutputs\Design Rule Check - driverV1.html
+[Configuration1]
+Name=Default Configuration
+ParameterCount=0
+ConstraintFileCount=0
 
 [OutputGroup1]
 Name=Netlist Outputs
@@ -83,32 +85,32 @@ OutputDocumentPath4=
 OutputVariantName4=
 OutputEnabled4=1
 OutputDefault4=0
-OutputType5=SIMetrixNetlist
-OutputName5=SIMetrix
+OutputType5=Verilog
+OutputName5=Verilog File
 OutputDocumentPath5=
 OutputVariantName5=
 OutputEnabled5=1
 OutputDefault5=0
-OutputType6=SIMPLISNetlist
-OutputName6=SIMPLIS
+OutputType6=VHDL
+OutputName6=VHDL File
 OutputDocumentPath6=
 OutputVariantName6=
 OutputEnabled6=1
 OutputDefault6=0
-OutputType7=Verilog
-OutputName7=Verilog File
+OutputType7=XSpiceNetlist
+OutputName7=XSpice Netlist
 OutputDocumentPath7=
 OutputVariantName7=
 OutputEnabled7=1
 OutputDefault7=0
-OutputType8=VHDL
-OutputName8=VHDL File
+OutputType8=SIMetrixNetlist
+OutputName8=SIMetrix
 OutputDocumentPath8=
 OutputVariantName8=
 OutputEnabled8=1
 OutputDefault8=0
-OutputType9=XSpiceNetlist
-OutputName9=XSpice Netlist
+OutputType9=SIMPLISNetlist
+OutputName9=SIMPLIS
 OutputDocumentPath9=
 OutputVariantName9=
 OutputEnabled9=1
@@ -141,7 +143,7 @@ OutputDefault3=0
 [OutputGroup3]
 Name=Documentation Outputs
 Description=
-TargetPrinter=Microsoft XPS Document Writer
+TargetPrinter=PDF-XChange 5.0 for ABBYY
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
 OutputType1=Composite
 OutputName1=Composite Drawing
@@ -150,50 +152,50 @@ OutputVariantName1=
 OutputEnabled1=1
 OutputDefault1=0
 PageOptions1=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType2=Logic Analyser Print
-OutputName2=Logic Analyser Prints
+OutputType2=OpenBus Print
+OutputName2=OpenBus Prints
 OutputDocumentPath2=
 OutputVariantName2=
 OutputEnabled2=1
 OutputDefault2=0
 PageOptions2=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType3=OpenBus Print
-OutputName3=OpenBus Prints
+OutputType3=PCB 3D Print
+OutputName3=PCB 3D Prints
 OutputDocumentPath3=
-OutputVariantName3=
+OutputVariantName3=[No Variations]
 OutputEnabled3=1
 OutputDefault3=0
 PageOptions3=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType4=PCB 3D Print
-OutputName4=PCB 3D Prints
+OutputType4=PCB Print
+OutputName4=PCB Prints
 OutputDocumentPath4=
 OutputVariantName4=
 OutputEnabled4=1
 OutputDefault4=0
 PageOptions4=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType5=PCB Print
-OutputName5=PCB Prints
+OutputType5=Schematic Print
+OutputName5=Schematic Prints
 OutputDocumentPath5=
 OutputVariantName5=
 OutputEnabled5=1
 OutputDefault5=0
 PageOptions5=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType6=Schematic Print
-OutputName6=Schematic Prints
+OutputType6=SimView Print
+OutputName6=SimView Prints
 OutputDocumentPath6=
 OutputVariantName6=
 OutputEnabled6=1
 OutputDefault6=0
 PageOptions6=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType7=SimView Print
-OutputName7=SimView Prints
+OutputType7=Wave Print
+OutputName7=Wave Prints
 OutputDocumentPath7=
 OutputVariantName7=
 OutputEnabled7=1
 OutputDefault7=0
 PageOptions7=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType8=Wave Print
-OutputName8=Wave Prints
+OutputType8=Logic Analyser Print
+OutputName8=Logic Analyser Prints
 OutputDocumentPath8=
 OutputVariantName8=
 OutputEnabled8=1
@@ -215,14 +217,14 @@ PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate
 OutputType1=Assembly
 OutputName1=Assembly Drawings
 OutputDocumentPath1=
-OutputVariantName1=
+OutputVariantName1=[No Variations]
 OutputEnabled1=1
 OutputDefault1=0
 PageOptions1=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
 OutputType2=Pick Place
 OutputName2=Generates pick and place files
 OutputDocumentPath2=
-OutputVariantName2=
+OutputVariantName2=[No Variations]
 OutputEnabled2=1
 OutputDefault2=0
 
@@ -248,14 +250,14 @@ PageOptions2=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintS
 OutputType3=Final
 OutputName3=Final Artwork Prints
 OutputDocumentPath3=
-OutputVariantName3=
+OutputVariantName3=[No Variations]
 OutputEnabled3=1
 OutputDefault3=0
 PageOptions3=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
 OutputType4=Gerber
 OutputName4=Gerber Files
 OutputDocumentPath4=
-OutputVariantName4=
+OutputVariantName4=[No Variations]
 OutputEnabled4=1
 OutputDefault4=0
 OutputType5=Mask
@@ -274,7 +276,7 @@ OutputDefault6=0
 OutputType7=ODB
 OutputName7=ODB++ Files
 OutputDocumentPath7=
-OutputVariantName7=
+OutputVariantName7=[No Variations]
 OutputEnabled7=1
 OutputDefault7=0
 OutputType8=Plane
@@ -294,36 +296,52 @@ OutputDefault9=0
 [OutputGroup6]
 Name=Report Outputs
 Description=
-TargetPrinter=Microsoft XPS Document Writer
+TargetPrinter=PDF-XChange 5.0 for ABBYY
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
-OutputType1=BOM_PartType
-OutputName1=Bill of Materials
+OutputType1=ComponentCrossReference
+OutputName1=Component Cross Reference Report
 OutputDocumentPath1=
-OutputVariantName1=
+OutputVariantName1=[No Variations]
 OutputEnabled1=1
 OutputDefault1=0
-OutputType2=ComponentCrossReference
-OutputName2=Component Cross Reference Report
+OutputType2=ReportHierarchy
+OutputName2=Report Project Hierarchy
 OutputDocumentPath2=
-OutputVariantName2=
+OutputVariantName2=[No Variations]
 OutputEnabled2=1
 OutputDefault2=0
-OutputType3=ReportHierarchy
-OutputName3=Report Project Hierarchy
+OutputType3=BOM_PartType
+OutputName3=Bill of Materials
 OutputDocumentPath3=
 OutputVariantName3=
 OutputEnabled3=1
 OutputDefault3=0
+Configuration3_Name1=ColumnNameFormat
+Configuration3_Item1=CaptionAsName
+Configuration3_Name2=Filter
+Configuration3_Item2=545046300E5446696C74657257726170706572000D46696C7465722E416374697665090F46696C7465722E43726974657269610A04000000000000000000
+Configuration3_Name3=General
+Configuration3_Item3=OpenExported=False|AddToProject=False|ForceFit=False|Database=False|IncludePCBData=False|ShowExportOptions=True|TemplateFilename=Board Stack Report.XLT|BatchMode=5|FormWidth=942|FormHeight=644
+Configuration3_Name4=GroupOrder
+Configuration3_Item4=Value=True|Comment=True|Footprint=True
+Configuration3_Name5=OutputConfigurationParameter1
+Configuration3_Item5==SimpleBOMView|SimpleBOMMode=0
+Configuration3_Name6=SortOrder
+Configuration3_Item6=Designator=Up|Comment=Up|Footprint=Up
+Configuration3_Name7=VisibleOrder
+Configuration3_Item7=Comment=100|Designator=100|Footprint=100|LibRef=100|Quantity=100|Value=100
 OutputType4=SimpleBOM
 OutputName4=Simple BOM
 OutputDocumentPath4=
-OutputVariantName4=
+OutputVariantName4=[No Variations]
 OutputEnabled4=1
 OutputDefault4=0
+Configuration4_Name1=OutputConfigurationParameter1
+Configuration4_Item1=Record=SimpleBOMView|SimpleBOMMode=0
 OutputType5=SinglePinNetReporter
 OutputName5=Report Single Pin Nets
 OutputDocumentPath5=
-OutputVariantName5=
+OutputVariantName5=[No Variations]
 OutputEnabled5=1
 OutputDefault5=0
 
