@@ -51,6 +51,12 @@ ClassGenCCAutoEnabled=1
 ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 
+[GeneratedDocument1]
+DocumentPath=driverV1.2.PcbDoc.htm
+
+[GeneratedDocument2]
+DocumentPath=..\..\..\..\..\▄ек©\PCB\keyct\V1.1-8\key8.DIP-pin.PcbDoc.htm
+
 [Configuration1]
 Name=Default Configuration
 ParameterCount=0
