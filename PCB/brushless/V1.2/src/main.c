@@ -1,6 +1,6 @@
 #include "main.h"
 
-unsigned char tmpbuf[16] = {0}; //数组用于存放接收到的数据
+unsigned char tmpbuf[16] = {0}; 
 unsigned int StateLoTable[8] = {0};
 
 #define LED_BLINK	PORTB^=1<<2
@@ -15,8 +15,8 @@ enum MOS{
     ABCH = 0xE0,
 };
 
-#define LMOS_OFF	{ TCCR0A&=0xF; TCCR2A&=0x3F; }	// 关闭下臂所有mos pwm
-#define HMOS_OFF	{ PORTD|=0x01; PORTC|=0x30; }   // 关闭上臂所有mos
+#define LMOS_OFF	{ TCCR0A&=0xF; TCCR2A&=0x3F; }	// close all arm of lower mos
+#define HMOS_OFF	{ PORTD|=0x01; PORTC|=0x30; }   // close all arm of upper mos
 #define AMOS_OFF    { LMOS_OFF; HMOS_OFF; }
 #define ALMOS_ON	TCCR0A|=1<<COM0A1
 #define BLMOS_ON	TCCR0A|=1<<COM0B1
@@ -33,7 +33,7 @@ enum MOS{
 #define T1_ON   { TCCR1B=1<<CS10; TIMSK1|=1<<TOIE1; TCNT1=0; }  // 0 divide   8.19ms
 #define T1_OFF  { TCCR1B=0; TIMSK1&=~1<<TOIE1; }
 #define I1_ON   EIMSK=1<<INT1;
-#define I1_OFF   EIMSK&=~(1<<INT1);
+#define I1_OFF  EIMSK&=~(1<<INT1);
 
 volatile unsigned int VelInte = 0;  // velocity integral
 volatile unsigned int LastValue = 0;
@@ -41,10 +41,10 @@ volatile unsigned char stall = 0;
 volatile unsigned int speed = 0;
 unsigned char dir = 0;
 typedef struct pd{
-    unsigned char SetSpeed;	// 设定目标 Desired Value
-    double Proportion;		// 比例常数 Proportional Const
-    double Integral;		// 积分常数 Integral Const
-    double Derivative;		// 微分常数 Derivative Const
+    unsigned char SetSpeed;	//  Desired Value
+    double Proportion;		//  Proportional Const
+    double Integral;		//  Integral Const
+    double Derivative;		//  Derivative Const
     int LastError;			// Error[-1]
     int PrevError;			// Error[-2]
 }PID;
@@ -55,11 +55,11 @@ static void commut(unsigned char phase);        //  commutation
 void PortInit(void)
 {
     DDRB = 0B00001110;
-    PORTB= 0B00000000;
+    PORTB= 0B00001000;
     PINB = 0x00;
 
     DDRD = 0B11100101;
-    PORTD= 0B00000001;
+    PORTD= 0B01100001;
     PIND = 0x00;
 
     DDRC = 0B00110000;
@@ -85,7 +85,7 @@ int IncPIDCalc(int NextSpeed,PID *sptr)
 {
     int iError;
     int value;
-    iError = sptr->SetSpeed - NextSpeed;	// 增量计算
+    iError = sptr->SetSpeed - NextSpeed;	// add cacle
     value = Kp * iError - Ki * sptr->LastError + Kd * sptr->PrevError;
     sptr->PrevError = sptr->LastError;
     sptr->LastError = iError;
@@ -94,19 +94,19 @@ int IncPIDCalc(int NextSpeed,PID *sptr)
 
 void I1Init(void)
 {
-    EICRA = 1<<ISC10 | 1<<ISC11;		// 中断1上升沿中断
+    EICRA = 1<<ISC10 | 1<<ISC11;		// rising init
 }
 
 void PCInit(void)
 {
-    PCICR |= 1<<PCIE1;			// PCINT[14:8] 中断使能
-    PCMSK1 |= 0x07;				// 引脚变化中断屏蔽位
+    PCICR |= 1<<PCIE1;			// PCINT[14:8] 
+    PCMSK1 |= 0x07;				//
 }
 
 void T0Init(void)
 {
-    TCCR0A = 1<<COM0A1 | 1<<COM0B1 | 1<<WGM00;		// 8位相位修正
-    TCCR0B = 1<<CS00;			// 0分频
+    TCCR0A = 1<<COM0A1 | 1<<COM0B1 | 1<<WGM00;		// 8bit phase
+    TCCR0B = 1<<CS00;			// 0 divide
     OCR0A = OCR0B = 0x40;
 }
 
@@ -176,7 +176,7 @@ int StartFun(unsigned char SetSpeed)
     {
         for(i=0; i<8; i++)
         {
-            if(VelInte > 4)     // 电机启动成功
+            if(VelInte > 4)     // motor start success
                 goto over;
             commut(i);
             _delay_ms(10);
