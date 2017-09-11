@@ -373,12 +373,12 @@ int main(void)
 					PORTC &= ~BD1H;
 					s1Count >>= 1;
 				}
-				else		// break;
+				else		// no break;
 				{
 					OCR1A = 0;
 					_delay_us(5);
-					PORTC &= ~BD1H;
-					PORTC &= ~BD2H;
+					PORTC |= BD1H;
+					PORTC |= BD2H;
 					s1Count = 0;
 				}
 				if(s1Count>511)
@@ -415,8 +415,8 @@ int main(void)
 				{
 					OCR1B = 0;
 					_delay_us(5);
-					PORTC &= ~AD1H;
-					PORTC &= ~AD2H;
+					PORTC |= AD1H;
+					PORTC |= AD2H;
 					s0Count = 0;
 				}
 				if(s0Count > 511)
