@@ -3,29 +3,29 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000202  00800100  00000694  00000728  2**0
+  0 .data         00000202  00800100  000006a0  00000734  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000694  00000000  00000000  00000094  2**1
+  1 .text         000006a0  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          0000002b  00800302  00800302  0000092a  2**0
+  2 .bss          0000002b  00800302  00800302  00000936  2**0
                   ALLOC
-  3 .debug_aranges 00000020  00000000  00000000  0000092a  2**0
+  3 .debug_aranges 00000020  00000000  00000000  00000936  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_pubnames 00000112  00000000  00000000  0000094a  2**0
+  4 .debug_pubnames 00000112  00000000  00000000  00000956  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   0000040d  00000000  00000000  00000a5c  2**0
+  5 .debug_info   0000040e  00000000  00000000  00000a68  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000001d8  00000000  00000000  00000e69  2**0
+  6 .debug_abbrev 000001f1  00000000  00000000  00000e76  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000050c  00000000  00000000  00001041  2**0
+  7 .debug_line   0000051c  00000000  00000000  00001067  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000c0  00000000  00000000  00001550  2**2
+  8 .debug_frame  000000c0  00000000  00000000  00001584  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000182  00000000  00000000  00001610  2**0
+  9 .debug_str    00000182  00000000  00000000  00001644  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000000cf  00000000  00000000  00001792  2**0
+ 10 .debug_loc    000000cf  00000000  00000000  000017c6  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000048  00000000  00000000  00001861  2**0
+ 11 .debug_ranges 00000048  00000000  00000000  00001895  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -70,7 +70,7 @@ Disassembly of section .text:
   40:	13 e0       	ldi	r17, 0x03	; 3
   42:	a0 e0       	ldi	r26, 0x00	; 0
   44:	b1 e0       	ldi	r27, 0x01	; 1
-  46:	e4 e9       	ldi	r30, 0x94	; 148
+  46:	e0 ea       	ldi	r30, 0xA0	; 160
   48:	f6 e0       	ldi	r31, 0x06	; 6
   4a:	02 c0       	rjmp	.+4      	; 0x50 <.do_copy_data_start>
 
@@ -97,7 +97,7 @@ Disassembly of section .text:
   62:	b1 07       	cpc	r27, r17
   64:	e1 f7       	brne	.-8      	; 0x5e <.do_clear_bss_loop>
   66:	67 d2       	rcall	.+1230   	; 0x536 <main>
-  68:	13 c3       	rjmp	.+1574   	; 0x690 <_exit>
+  68:	19 c3       	rjmp	.+1586   	; 0x69c <_exit>
 
 0000006a <__bad_interrupt>:
   6a:	ca cf       	rjmp	.-108    	; 0x0 <__vectors>
@@ -258,7 +258,7 @@ ISR(TIMER1_CAPT_vect)
  128:	10 92 84 00 	sts	0x0084, r1
 		D2_BLINK;
  12c:	85 b1       	in	r24, 0x05	; 5
- 12e:	92 e0       	ldi	r25, 0x02	; 2
+ 12e:	94 e0       	ldi	r25, 0x04	; 4
  130:	89 27       	eor	r24, r25
  132:	85 b9       	out	0x05, r24	; 5
 		speed = ICR1L;
@@ -851,9 +851,9 @@ int main(void)
  53c:	f8 94       	cli
     PortInit();
  53e:	96 dd       	rcall	.-1236   	; 0x6c <PortInit>
-    LED_BLINK;
+    D1_BLINK;
  540:	85 b1       	in	r24, 0x05	; 5
- 542:	94 e0       	ldi	r25, 0x04	; 4
+ 542:	92 e0       	ldi	r25, 0x02	; 2
  544:	89 27       	eor	r24, r25
  546:	85 b9       	out	0x05, r24	; 5
  548:	88 e8       	ldi	r24, 0x88	; 136
@@ -878,9 +878,9 @@ int main(void)
 		while(__ticks)
  558:	d9 f7       	brne	.-10     	; 0x550 <main+0x1a>
     _delay_ms(500);
-    LED_BLINK;
+    D1_BLINK;
  55a:	85 b1       	in	r24, 0x05	; 5
- 55c:	94 e0       	ldi	r25, 0x04	; 4
+ 55c:	92 e0       	ldi	r25, 0x02	; 2
  55e:	89 27       	eor	r24, r25
  560:	85 b9       	out	0x05, r24	; 5
     EICRA = 1<<ISC10 | 1<<ISC11;		// rising init
@@ -935,7 +935,7 @@ void T1Init(void)
 	TCNT1 = 0;
  59e:	10 92 85 00 	sts	0x0085, r1
  5a2:	10 92 84 00 	sts	0x0084, r1
-    LED_BLINK;
+    D1_BLINK;
 	PCInit();
     T0Init();
     T2Init();
@@ -949,8 +949,8 @@ void T1Init(void)
 				value = porp[value];
 				dir = 1;
  5a8:	11 e0       	ldi	r17, 0x01	; 1
-			else
 			{
+				D1_OFF;
 				value = abs(value);
 				value >>= 1;
 				if(value > 255)
@@ -974,106 +974,112 @@ void T1Init(void)
  5be:	30 91 27 03 	lds	r19, 0x0327
  5c2:	2c 5d       	subi	r18, 0xDC	; 220
  5c4:	35 40       	sbci	r19, 0x05	; 5
+ 5c6:	30 93 2a 03 	sts	0x032A, r19
+ 5ca:	20 93 29 03 	sts	0x0329, r18
 			if(value >= 0)
- 5c6:	37 fd       	sbrc	r19, 7
- 5c8:	20 c0       	rjmp	.+64     	; 0x60a <main+0xd4>
+ 5ce:	37 fd       	sbrc	r19, 7
+ 5d0:	21 c0       	rjmp	.+66     	; 0x614 <main+0xde>
 			{
+				D1_ON;
+ 5d2:	29 9a       	sbi	0x05, 1	; 5
 				dir = 0;
- 5ca:	10 92 28 03 	sts	0x0328, r1
+ 5d4:	10 92 28 03 	sts	0x0328, r1
 				value >>= 1;
- 5ce:	c9 01       	movw	r24, r18
- 5d0:	95 95       	asr	r25
- 5d2:	87 95       	ror	r24
- 5d4:	90 93 2a 03 	sts	0x032A, r25
- 5d8:	80 93 29 03 	sts	0x0329, r24
+ 5d8:	c9 01       	movw	r24, r18
+ 5da:	95 95       	asr	r25
+ 5dc:	87 95       	ror	r24
+ 5de:	90 93 2a 03 	sts	0x032A, r25
+ 5e2:	80 93 29 03 	sts	0x0329, r24
 				if(value > 255)
- 5dc:	8f 3f       	cpi	r24, 0xFF	; 255
- 5de:	91 05       	cpc	r25, r1
- 5e0:	29 f0       	breq	.+10     	; 0x5ec <main+0xb6>
- 5e2:	24 f0       	brlt	.+8      	; 0x5ec <main+0xb6>
+ 5e6:	8f 3f       	cpi	r24, 0xFF	; 255
+ 5e8:	91 05       	cpc	r25, r1
+ 5ea:	29 f0       	breq	.+10     	; 0x5f6 <main+0xc0>
+ 5ec:	24 f0       	brlt	.+8      	; 0x5f6 <main+0xc0>
 					value = 255;
- 5e4:	d0 93 2a 03 	sts	0x032A, r29
- 5e8:	c0 93 29 03 	sts	0x0329, r28
+ 5ee:	d0 93 2a 03 	sts	0x032A, r29
+ 5f2:	c0 93 29 03 	sts	0x0329, r28
 				value = porp[value];
- 5ec:	e0 91 29 03 	lds	r30, 0x0329
- 5f0:	f0 91 2a 03 	lds	r31, 0x032A
- 5f4:	ee 0f       	add	r30, r30
- 5f6:	ff 1f       	adc	r31, r31
- 5f8:	ee 5f       	subi	r30, 0xFE	; 254
- 5fa:	fe 4f       	sbci	r31, 0xFE	; 254
- 5fc:	80 81       	ld	r24, Z
- 5fe:	91 81       	ldd	r25, Z+1	; 0x01
- 600:	90 93 2a 03 	sts	0x032A, r25
- 604:	80 93 29 03 	sts	0x0329, r24
- 608:	22 c0       	rjmp	.+68     	; 0x64e <main+0x118>
+ 5f6:	e0 91 29 03 	lds	r30, 0x0329
+ 5fa:	f0 91 2a 03 	lds	r31, 0x032A
+ 5fe:	ee 0f       	add	r30, r30
+ 600:	ff 1f       	adc	r31, r31
+ 602:	ee 5f       	subi	r30, 0xFE	; 254
+ 604:	fe 4f       	sbci	r31, 0xFE	; 254
+ 606:	80 81       	ld	r24, Z
+ 608:	91 81       	ldd	r25, Z+1	; 0x01
+ 60a:	90 93 2a 03 	sts	0x032A, r25
+ 60e:	80 93 29 03 	sts	0x0329, r24
+ 612:	23 c0       	rjmp	.+70     	; 0x65a <main+0x124>
 			}
 			else
 			{
+				D1_OFF;
+ 614:	29 98       	cbi	0x05, 1	; 5
 				value = abs(value);
 				value >>= 1;
- 60a:	88 27       	eor	r24, r24
- 60c:	99 27       	eor	r25, r25
- 60e:	82 1b       	sub	r24, r18
- 610:	93 0b       	sbc	r25, r19
- 612:	95 95       	asr	r25
- 614:	87 95       	ror	r24
- 616:	90 93 2a 03 	sts	0x032A, r25
- 61a:	80 93 29 03 	sts	0x0329, r24
+ 616:	88 27       	eor	r24, r24
+ 618:	99 27       	eor	r25, r25
+ 61a:	82 1b       	sub	r24, r18
+ 61c:	93 0b       	sbc	r25, r19
+ 61e:	95 95       	asr	r25
+ 620:	87 95       	ror	r24
+ 622:	90 93 2a 03 	sts	0x032A, r25
+ 626:	80 93 29 03 	sts	0x0329, r24
 				if(value > 255)
- 61e:	8f 3f       	cpi	r24, 0xFF	; 255
- 620:	91 05       	cpc	r25, r1
- 622:	29 f0       	breq	.+10     	; 0x62e <main+0xf8>
- 624:	24 f0       	brlt	.+8      	; 0x62e <main+0xf8>
+ 62a:	8f 3f       	cpi	r24, 0xFF	; 255
+ 62c:	91 05       	cpc	r25, r1
+ 62e:	29 f0       	breq	.+10     	; 0x63a <main+0x104>
+ 630:	24 f0       	brlt	.+8      	; 0x63a <main+0x104>
 					value = 255;
- 626:	d0 93 2a 03 	sts	0x032A, r29
- 62a:	c0 93 29 03 	sts	0x0329, r28
+ 632:	d0 93 2a 03 	sts	0x032A, r29
+ 636:	c0 93 29 03 	sts	0x0329, r28
 				value = porp[value];
- 62e:	e0 91 29 03 	lds	r30, 0x0329
- 632:	f0 91 2a 03 	lds	r31, 0x032A
- 636:	ee 0f       	add	r30, r30
- 638:	ff 1f       	adc	r31, r31
- 63a:	ee 5f       	subi	r30, 0xFE	; 254
- 63c:	fe 4f       	sbci	r31, 0xFE	; 254
- 63e:	80 81       	ld	r24, Z
- 640:	91 81       	ldd	r25, Z+1	; 0x01
- 642:	90 93 2a 03 	sts	0x032A, r25
- 646:	80 93 29 03 	sts	0x0329, r24
+ 63a:	e0 91 29 03 	lds	r30, 0x0329
+ 63e:	f0 91 2a 03 	lds	r31, 0x032A
+ 642:	ee 0f       	add	r30, r30
+ 644:	ff 1f       	adc	r31, r31
+ 646:	ee 5f       	subi	r30, 0xFE	; 254
+ 648:	fe 4f       	sbci	r31, 0xFE	; 254
+ 64a:	80 81       	ld	r24, Z
+ 64c:	91 81       	ldd	r25, Z+1	; 0x01
+ 64e:	90 93 2a 03 	sts	0x032A, r25
+ 652:	80 93 29 03 	sts	0x0329, r24
 				dir = 1;
- 64a:	10 93 28 03 	sts	0x0328, r17
+ 656:	10 93 28 03 	sts	0x0328, r17
 			}
 			if(stall && value>1)
- 64e:	80 91 00 01 	lds	r24, 0x0100
- 652:	88 23       	and	r24, r24
- 654:	99 f0       	breq	.+38     	; 0x67c <main+0x146>
- 656:	80 91 29 03 	lds	r24, 0x0329
- 65a:	90 91 2a 03 	lds	r25, 0x032A
- 65e:	02 97       	sbiw	r24, 0x02	; 2
- 660:	6c f0       	brlt	.+26     	; 0x67c <main+0x146>
+ 65a:	80 91 00 01 	lds	r24, 0x0100
+ 65e:	88 23       	and	r24, r24
+ 660:	99 f0       	breq	.+38     	; 0x688 <main+0x152>
+ 662:	80 91 29 03 	lds	r24, 0x0329
+ 666:	90 91 2a 03 	lds	r25, 0x032A
+ 66a:	02 97       	sbiw	r24, 0x02	; 2
+ 66c:	6c f0       	brlt	.+26     	; 0x688 <main+0x152>
 			{
 				while(!StartFun(0x80));
- 662:	80 e8       	ldi	r24, 0x80	; 128
- 664:	e8 de       	rcall	.-560    	; 0x436 <StartFun>
- 666:	89 2b       	or	r24, r25
- 668:	e1 f3       	breq	.-8      	; 0x662 <main+0x12c>
+ 66e:	80 e8       	ldi	r24, 0x80	; 128
+ 670:	e2 de       	rcall	.-572    	; 0x436 <StartFun>
+ 672:	89 2b       	or	r24, r25
+ 674:	e1 f3       	breq	.-8      	; 0x66e <main+0x138>
 				OCR0A = OCR0B = OCR2A = value;
- 66a:	80 91 29 03 	lds	r24, 0x0329
- 66e:	80 93 b3 00 	sts	0x00B3, r24
- 672:	80 91 b3 00 	lds	r24, 0x00B3
- 676:	88 bd       	out	0x28, r24	; 40
- 678:	88 b5       	in	r24, 0x28	; 40
- 67a:	87 bd       	out	0x27, r24	; 39
+ 676:	80 91 29 03 	lds	r24, 0x0329
+ 67a:	80 93 b3 00 	sts	0x00B3, r24
+ 67e:	80 91 b3 00 	lds	r24, 0x00B3
+ 682:	88 bd       	out	0x28, r24	; 40
+ 684:	88 b5       	in	r24, 0x28	; 40
+ 686:	87 bd       	out	0x27, r24	; 39
 			}
 			OCR0A = OCR0B = OCR2A = value;
- 67c:	80 91 29 03 	lds	r24, 0x0329
- 680:	80 93 b3 00 	sts	0x00B3, r24
- 684:	80 91 b3 00 	lds	r24, 0x00B3
- 688:	88 bd       	out	0x28, r24	; 40
- 68a:	88 b5       	in	r24, 0x28	; 40
- 68c:	87 bd       	out	0x27, r24	; 39
- 68e:	8f cf       	rjmp	.-226    	; 0x5ae <main+0x78>
+ 688:	80 91 29 03 	lds	r24, 0x0329
+ 68c:	80 93 b3 00 	sts	0x00B3, r24
+ 690:	80 91 b3 00 	lds	r24, 0x00B3
+ 694:	88 bd       	out	0x28, r24	; 40
+ 696:	88 b5       	in	r24, 0x28	; 40
+ 698:	87 bd       	out	0x27, r24	; 39
+ 69a:	89 cf       	rjmp	.-238    	; 0x5ae <main+0x78>
 
-00000690 <_exit>:
- 690:	f8 94       	cli
+0000069c <_exit>:
+ 69c:	f8 94       	cli
 
-00000692 <__stop_program>:
- 692:	ff cf       	rjmp	.-2      	; 0x692 <__stop_program>
+0000069e <__stop_program>:
+ 69e:	ff cf       	rjmp	.-2      	; 0x69e <__stop_program>

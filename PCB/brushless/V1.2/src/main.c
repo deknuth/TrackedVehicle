@@ -3,8 +3,10 @@
 unsigned char tmpbuf[16] = {0}; 
 unsigned int StateLoTable[8] = {0};
 
-#define LED_BLINK	PORTB^=1<<2
-#define D2_BLINK	PORTB^=1<<1
+#define D2_BLINK	PORTB^=0x04
+#define D1_BLINK	PORTB^=0x02
+#define D1_ON	PORTB|=0x02
+#define D1_OFF	PORTB&=~(0x02)
 enum MOS{
     APH = 0x01,
     BPH = (1<<5),
@@ -255,9 +257,9 @@ int main(void)
 {
 	cli();
     PortInit();
-    LED_BLINK;
+    D1_BLINK;
     _delay_ms(500);
-    LED_BLINK;
+    D1_BLINK;
 	PCInit();
     T0Init();
     T2Init();
@@ -271,6 +273,7 @@ int main(void)
 			value = speed-1500;
 			if(value >= 0)
 			{
+				D1_ON;
 				dir = 0;
 				value >>= 1;
 				if(value > 255)
@@ -279,6 +282,7 @@ int main(void)
 			}
 			else
 			{
+				D1_OFF;
 				value = abs(value);
 				value >>= 1;
 				if(value > 255)
