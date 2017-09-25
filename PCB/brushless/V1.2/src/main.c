@@ -3,10 +3,10 @@
 unsigned char tmpbuf[16] = {0}; 
 unsigned int StateLoTable[8] = {0};
 
-#define D2_BLINK	PORTB^=0x04
-#define D1_BLINK	PORTB^=0x02
-#define D1_ON	PORTB|=0x02
-#define D1_OFF	PORTB&=~(0x02)
+#define D14_BLINK	PORTB^=0x04
+#define D11_BLINK	PORTB^=0x02
+#define D11_ON	PORTB|=0x02
+#define D11_OFF	PORTB&=~(0x02)
 enum MOS{
     APH = 0x01,
     BPH = (1<<5),
@@ -140,8 +140,8 @@ ISR(TIMER1_CAPT_vect)
 	{
 		CaptStat=1;
 		CAPT_T_RIS;
-		D2_BLINK;
-		speed = ICR1L;
+		D14_BLINK;
+		speed = ICR1;
 		if(times++ > 2)
 		{
 			if(LastValue == VelInte)
@@ -171,8 +171,8 @@ int StartFun(unsigned char SetSpeed)
     unsigned char temp = 0xE0;
 	stall = times = 0;
     DIS_PCINT;
-    T1_OFF;
-    I1_OFF;
+ //   T1_OFF;
+ //   I1_OFF;
     OCR0A = OCR0B = OCR2A = temp;
     ENB_PCINT;				// Enable PC interrupt
     while(1)
@@ -257,9 +257,9 @@ int main(void)
 {
 	cli();
     PortInit();
-    D1_BLINK;
+    D11_BLINK;
     _delay_ms(500);
-    D1_BLINK;
+    D11_BLINK;
 	PCInit();
     T0Init();
     T2Init();
@@ -273,24 +273,25 @@ int main(void)
 			value = speed-1500;
 			if(value >= 0)
 			{
-				D1_ON;
-				dir = 0;
+				D11_ON;
 				value >>= 1;
 				if(value > 255)
 					value = 255;
-				value = porp[value];
+				value = 255-value;
+				dir = 0;
 			}
 			else
 			{
-				D1_OFF;
+				D11_OFF;
 				value = abs(value);
 				value >>= 1;
 				if(value > 255)
 					value = 255;
-				value = porp[value];
+				value = 255-value;
 				dir = 1;
 			}
-			if(stall && value>1)
+			
+			if(stall && value>4)
 			{
 				while(!StartFun(0x80));
 				OCR0A = OCR0B = OCR2A = value;

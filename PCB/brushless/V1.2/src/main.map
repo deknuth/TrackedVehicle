@@ -118,7 +118,7 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x6a0
+.text           0x00000000      0x686
  *(.vectors)
  .vectors       0x00000000       0x34 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr4/crtm48p.o
                 0x00000000                __vectors
@@ -198,30 +198,30 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a
                 0x0000006a                __vector_16
                 0x0000006a                __vector_18
                 0x0000006a                __vector_20
- .text          0x0000006c      0x630 main.o
-                0x00000436                StartFun
+ .text          0x0000006c      0x616 main.o
+                0x00000438                StartFun
                 0x000000be                T0Init
                 0x000000a0                I1Init
                 0x0000008a                T1Init
                 0x000000ce                T2Init
-                0x00000536                main
-                0x000004da                __vector_4
+                0x00000528                main
+                0x000004cc                __vector_4
                 0x0000006c                PortInit
                 0x000000a8                PCInit
                 0x000000e0                __vector_10
- .text          0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
- .text          0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_copy_data.o)
- .text          0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_clear_bss.o)
-                0x0000069c                . = ALIGN (0x2)
+ .text          0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
+ .text          0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_copy_data.o)
+ .text          0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_clear_bss.o)
+                0x00000682                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
- .text.libgcc   0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_copy_data.o)
- .text.libgcc   0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_clear_bss.o)
-                0x0000069c                . = ALIGN (0x2)
+ .text.libgcc   0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
+ .text.libgcc   0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_clear_bss.o)
+                0x00000682                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000069c        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
-                0x0000069c                exit
-                0x0000069c                _exit
+ .fini9         0x00000682        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
+                0x00000682                exit
+                0x00000682                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -240,11 +240,11 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000069c        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
+ .fini0         0x00000682        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a(_exit.o)
  *(.fini0)
-                0x000006a0                _etext = .
+                0x00000686                _etext = .
 
-.data           0x00800100      0x202 load address 0x000006a0
+.data           0x00800100      0x202 load address 0x00000686
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr4/crtm48p.o
@@ -283,8 +283,8 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a
  *(.bss*)
  *(COMMON)
                 0x0080032d                PROVIDE (__bss_end, .)
-                0x000006a0                __data_load_start = LOADADDR (.data)
-                0x000008a2                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00000686                __data_load_start = LOADADDR (.data)
+                0x00000888                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0080032d        0x0
                 0x0080032d                PROVIDE (__noinit_start, .)
@@ -362,9 +362,9 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr4\libgcc.a
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x1f1 main.o
 
-.debug_line     0x00000000      0x51c
+.debug_line     0x00000000      0x50c
  *(.debug_line)
- .debug_line    0x00000000      0x51c main.o
+ .debug_line    0x00000000      0x50c main.o
 
 .debug_frame    0x00000000       0xc0
  *(.debug_frame)
