@@ -319,7 +319,7 @@ int main(void)
 	unsigned int curr = 0;
 	unsigned int vCount = 0;
 	unsigned int lCount = 0;
-	unsigned int tCount = 0;
+	int tCount = 0;
 	unsigned char overCurr = 1;
 	unsigned int temp = 0;
 	int cCount = 0;

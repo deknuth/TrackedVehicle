@@ -1,6 +1,5 @@
 #include "main.h"
 
-unsigned char tmpbuf[16] = {0}; 
 unsigned int StateLoTable[8] = {0};
 
 #define D14_BLINK	PORTB^=0x04
@@ -23,12 +22,13 @@ enum MOS{
 #define ALMOS_ON	TCCR0A|=1<<COM0A1
 #define BLMOS_ON	TCCR0A|=1<<COM0B1
 #define CLMOS_ON	TCCR2A|=1<<COM2A1
-#define AHCL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTD&=~APH; CLMOS_ON; }
-#define AHBL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTD&=~APH; BLMOS_ON; }
-#define CHBL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~CPH; BLMOS_ON; }
-#define CHAL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~CPH; ALMOS_ON; }
-#define BHAL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~BPH; ALMOS_ON; }
-#define BHCL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~BPH; CLMOS_ON; }
+//asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");
+#define AHCL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; CLMOS_ON; }
+#define AHBL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; BLMOS_ON; }
+#define CHBL	{ AMOS_OFF; asm("nop"); PORTC&=~CPH; BLMOS_ON; }
+#define CHAL	{ AMOS_OFF; asm("nop"); PORTC&=~CPH; ALMOS_ON; }
+#define BHAL	{ AMOS_OFF; asm("nop"); PORTC&=~BPH; ALMOS_ON; }
+#define BHCL	{ AMOS_OFF; asm("nop"); PORTC&=~BPH; CLMOS_ON; }
 #define DIS_PCINT	PCICR&=~1<<PCIE1
 #define ENB_PCINT	PCICR|=1<<PCIE1
 
@@ -40,6 +40,9 @@ enum MOS{
 #define CAPT_T_FALL	{ TCCR1B=1<<ICNC1|1<<CS11;TCNT1=0; ICR1=0;}
 #define CAPT_T_RIS	{ TCCR1B=1<<ICNC1|1<<ICES1|1<<CS11; TCNT1=0; }
 
+#define FAN_ON	PORTD|=0x4
+#define FAN_OFF	PORTD&=~0x4
+
 volatile unsigned int VelInte = 0;  // velocity integral
 volatile unsigned int LastValue = 0;
 volatile unsigned char stall = 1;
@@ -48,9 +51,10 @@ unsigned char dir = 0;
 volatile unsigned char CaptStat = 1;
 int value = 0;
 
-const unsigned int porp[256] = {
-	0,0,0,0,0,1,2,3,4,5,
-	6,7,8,9,10,11,12,13,14,15,
+
+const unsigned char porp[256] = {
+	1,2,3,4,5,6,6,7,7,8,
+	8,9,9,10,10,11,12,13,14,15,
 	16,17,18,19,20,21,22,23,24,25,
 	26,27,28,29,30,31,32,33,34,35,
 	36,37,38,39,40,41,42,43,44,45,
@@ -73,8 +77,8 @@ const unsigned int porp[256] = {
 	206,207,208,209,210,211,212,213,214,215,
 	216,217,218,219,220,221,222,223,224,225,
 	226,227,228,229,230,231,232,233,234,235,
-	236,237,238,239,240,241,242,243,244,245,
-	246,247,248,249,250,251
+	236,237,239,241,243,245,247,249,251,253,
+	255,255,255,255,255,255
 };
 
 static void commut(unsigned char phase);        //  commutation
@@ -92,6 +96,28 @@ void PortInit(void)
     DDRC = 0B00110000;
     PORTC= 0B00110000;
     PINC = 0x00;
+}
+
+/**************************************
+* ADC bit: 10bit
+* Aref voltage: 2.5V
+* sampling frequency 64 divide: 172.8KHz
+**************************************/
+void ADCInit(void)
+{
+	ADMUX =  1<<REFS0 | 1<<ADLAR;	// Avcc Ref  左对齐
+	ADCSRA = 1<<ADPS2 | 1<<ADPS0 | 1<<ADEN;	//| 1<<ADATE ;		// 32分频
+	ADCSRB = 0x00;						
+	DIDR0 = 0xC8;			// ADC3.6.7
+}
+
+unsigned int AdConvert(unsigned char channal)
+{
+	ADMUX |= channal;
+	ADCSRA |= 1<<ADSC;					// start converter
+	while ((ADCSRA & 0x40));			// wait converter over  ADSC==0 on converter over
+	ADMUX &= 0xF0;
+	return(ADCH);
 }
 
 void T1Init(void)
@@ -255,48 +281,122 @@ void commut(unsigned char phase)        //  commutation
 
 int main(void)
 {
+	unsigned int lost = 0;
+//	unsigned int volt = 0;
+	unsigned int curr = 0;
+//	unsigned int vCount = 0;
+	
+	unsigned char overCurr = 0;
+	unsigned int temp = 0;
+    int tCount = 0;
+	int cCount = 0;
 	cli();
     PortInit();
-    D11_BLINK;
+    D11_ON;
     _delay_ms(500);
-    D11_BLINK;
+    D11_OFF;
+	_delay_ms(500);
+    D11_ON;
+    _delay_ms(500);
+    D11_OFF;
 	PCInit();
     T0Init();
     T2Init();
 	T1Init();
+	ADCInit();
 	sei();
     while(1)
     {
-		if(update)
+		if(update && overCurr)
 		{
 			update = 0;
 			value = speed-1500;
 			if(value >= 0)
 			{
-				D11_ON;
 				value >>= 1;
 				if(value > 255)
 					value = 255;
-				value = 255-value;
+				value = porp[255-value];
 				dir = 0;
 			}
 			else
 			{
-				D11_OFF;
 				value = abs(value);
 				value >>= 1;
 				if(value > 255)
 					value = 255;
-				value = 255-value;
+				value = porp[255-value];
 				dir = 1;
 			}
-			
-			if(stall && value>4)
+			if(stall && value<255)
 			{
 				while(!StartFun(0x80));
 				OCR0A = OCR0B = OCR2A = value;
 			}
 			OCR0A = OCR0B = OCR2A = value;
+			lost = 0;
+		}
+		temp = (AdConvert(3)<<2);
+//		volt = (AdConvert(7)<<2);
+		curr = (AdConvert(6)<<2);
+	/*
+		if(volt < 240)
+		{
+			
+			if(vCount++>6000)
+			{
+				if(vCount < 7200)	
+					BEEP_ON;
+				else
+				{
+					vCount = 0;
+					BEEP_OFF;
+				}
+			}
+		}
+		else
+		{
+			vCount = 0;
+		}
+*/
+		if(curr > 720)		
+		{
+			if(cCount++>650)		// 130ms
+			{
+				D11_ON;
+				overCurr = 0;
+				OCR0A = OCR0B = OCR2A = 255;
+				cCount = 0;
+			}
+		}
+		else
+		{
+			if(cCount-- < -20000)		// wait for two second
+			{
+				D11_OFF;
+				overCurr = 1;
+				cCount = 0;
+			}
+		}
+
+		if(temp < 362)
+		{
+			if(tCount++ > 2000)
+			{
+				tCount = 0;
+				FAN_ON;
+			}
+		}
+		else if(tCount-- < -2000)
+		{
+			tCount = 0;
+			FAN_OFF;
+		}
+		
+		if(lost++ > 12000)
+		{
+			OCR0A = OCR0B = OCR2A = 255;
+			lost = 0;
 		}
     }
 }
