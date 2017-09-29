@@ -2,7 +2,9 @@
 
 unsigned int StateLoTable[8] = {0};
 
+#define FEED_DOG	PORTD^=0x80
 #define D14_BLINK	PORTB^=0x04
+#define D14_OFF		PORTB&=~0x04
 #define D11_BLINK	PORTB^=0x02
 #define D11_ON	PORTB|=0x02
 #define D11_OFF	PORTB&=~(0x02)
@@ -19,9 +21,12 @@ enum MOS{
 #define LMOS_OFF	{ TCCR0A&=0xF; TCCR2A&=0x3F; }	// close all arm of lower mos
 #define HMOS_OFF	{ PORTD|=0x01; PORTC|=0x30; }   // close all arm of upper mos
 #define AMOS_OFF    { LMOS_OFF; HMOS_OFF; }
+#define HMOS_ON		{ PORTD&=~(0x01); PORTC&=~(0x30); }
 #define ALMOS_ON	TCCR0A|=1<<COM0A1
 #define BLMOS_ON	TCCR0A|=1<<COM0B1
 #define CLMOS_ON	TCCR2A|=1<<COM2A1
+#define BREAK_ON	{ LMOS_OFF; _delay_us(15); HMOS_ON; }
+
 //asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");
 #define AHCL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; CLMOS_ON; }
 #define AHBL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; BLMOS_ON; }
@@ -218,6 +223,7 @@ int StartFun(unsigned char SetSpeed)
         }
         else
             OCR0A = OCR0B = OCR2A = temp;
+		FEED_DOG;
     }
 over:
     return 1;
@@ -295,9 +301,12 @@ int main(void)
     D11_ON;
     _delay_ms(500);
     D11_OFF;
+    FEED_DOG;
 	_delay_ms(500);
     D11_ON;
+    FEED_DOG;
     _delay_ms(500);
+    FEED_DOG;
     D11_OFF;
 	PCInit();
     T0Init();
@@ -307,6 +316,7 @@ int main(void)
 	sei();
     while(1)
     {
+    	FEED_DOG;
 		if(update && overCurr)
 		{
 			update = 0;
@@ -330,10 +340,13 @@ int main(void)
 			}
 			if(stall && value<255)
 			{
-				while(!StartFun(0x80));
+				while(!StartFun(0x80))
+					FEED_DOG;
 				OCR0A = OCR0B = OCR2A = value;
 			}
 			OCR0A = OCR0B = OCR2A = value;
+			if(value == 255)
+				BREAK_ON;
 			lost = 0;
 		}
 		temp = (AdConvert(3)<<2);
@@ -397,6 +410,7 @@ int main(void)
 		{
 			OCR0A = OCR0B = OCR2A = 255;
 			lost = 0;
+			D14_OFF;
 		}
     }
 }
