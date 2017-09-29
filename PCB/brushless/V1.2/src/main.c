@@ -25,7 +25,7 @@ enum MOS{
 #define ALMOS_ON	TCCR0A|=1<<COM0A1
 #define BLMOS_ON	TCCR0A|=1<<COM0B1
 #define CLMOS_ON	TCCR2A|=1<<COM2A1
-#define BREAK_ON	{ LMOS_OFF; _delay_us(15); HMOS_ON; }
+#define BREAK_ON	{ _delay_us(10); HMOS_ON; }
 
 //asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");
 #define AHCL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; CLMOS_ON; }
@@ -82,7 +82,7 @@ const unsigned char porp[256] = {
 	206,207,208,209,210,211,212,213,214,215,
 	216,217,218,219,220,221,222,223,224,225,
 	226,227,228,229,230,231,232,233,234,235,
-	236,237,239,241,243,245,247,249,251,253,
+	236,237,239,243,247,251,255,255,255,255,
 	255,255,255,255,255,255
 };
 
@@ -184,8 +184,6 @@ ISR(TIMER1_CAPT_vect)
 			}
 			times = 0;
 		}
-		if(VelInte > 60000)
-			VelInte = 0;
 		update = 1;
 	}
 }
@@ -193,17 +191,17 @@ ISR(TIMER1_CAPT_vect)
 ISR(PCINT1_vect)
 {
     VelInte++;
-    commut(PINC&0x07);
+	commut(PINC&0x07);
 }
 
 int StartFun(unsigned char SetSpeed)
 {
     unsigned char i = 0;
     unsigned char temp = 0xE0;
+	VelInte = LastValue = 0;
 	stall = times = 0;
     DIS_PCINT;
- //   T1_OFF;
- //   I1_OFF;
+	AMOS_OFF;
     OCR0A = OCR0B = OCR2A = temp;
     ENB_PCINT;				// Enable PC interrupt
     while(1)
@@ -338,15 +336,20 @@ int main(void)
 				value = porp[255-value];
 				dir = 1;
 			}
-			if(stall && value<255)
+			if(stall && value<250)
 			{
+				D11_BLINK;
 				while(!StartFun(0x80))
 					FEED_DOG;
 				OCR0A = OCR0B = OCR2A = value;
 			}
-			OCR0A = OCR0B = OCR2A = value;
-			if(value == 255)
+			if(value > 250)
+			{
+				OCR0A = OCR0B = OCR2A = 255;
 				BREAK_ON;
+			}
+			else
+				OCR0A = OCR0B = OCR2A = value;
 			lost = 0;
 		}
 		temp = (AdConvert(3)<<2);
@@ -412,6 +415,8 @@ int main(void)
 			lost = 0;
 			D14_OFF;
 		}
+		if(VelInte > 50000)
+			VelInte = 0;
     }
 }
 
