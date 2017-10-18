@@ -27,13 +27,12 @@ enum MOS{
 #define CLMOS_ON	TCCR2A|=1<<COM2A1
 #define BREAK_ON	{ _delay_us(10); HMOS_ON; }
 
-//asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");
-#define AHCL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; CLMOS_ON; }
-#define AHBL	{ AMOS_OFF; asm("nop"); PORTD&=~APH; BLMOS_ON; }
-#define CHBL	{ AMOS_OFF; asm("nop"); PORTC&=~CPH; BLMOS_ON; }
-#define CHAL	{ AMOS_OFF; asm("nop"); PORTC&=~CPH; ALMOS_ON; }
-#define BHAL	{ AMOS_OFF; asm("nop"); PORTC&=~BPH; ALMOS_ON; }
-#define BHCL	{ AMOS_OFF; asm("nop"); PORTC&=~BPH; CLMOS_ON; }
+#define AHCL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");; PORTD&=~APH; CLMOS_ON; }
+#define AHBL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTD&=~APH; BLMOS_ON; }
+#define CHBL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~CPH; BLMOS_ON; }
+#define CHAL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~CPH; ALMOS_ON; }
+#define BHAL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~BPH; ALMOS_ON; }
+#define BHCL	{ AMOS_OFF; asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop");asm("nop"); PORTC&=~BPH; CLMOS_ON; }
 #define DIS_PCINT	PCICR&=~1<<PCIE1
 #define ENB_PCINT	PCICR|=1<<PCIE1
 
