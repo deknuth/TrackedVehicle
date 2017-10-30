@@ -1,0 +1,67 @@
+﻿Field=#~Integer~#~50|Field=Comment~String~Comment~100|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=LibRef~String~LibRef~100|Field=Quantity~Integer~Quantity~100|Field=Value~String~Value~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~DRIVERV1.2.PRJPCB|ReportField=ProjectFullPath~G:\GitHUB\TrackedVehicle\PCB\brushless\V1.2\DRIVERV1.2.PRJPCB|ReportField=Title~Bill of Materials For Project [DRIVERV1.2.PRJPCB] (No PCB Document Selected)|ReportField=TotalQuantity~172|ReportField=ReportTime~17:06:45|ReportField=ReportDate~2017-10-25|ReportField=ReportDateTime~2017-10-25 17:06:45|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=Application_BuildNumber~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=CurrentDate~2017-10-25|ReportField=CurrentTime~17:06:42|ReportField=Date~|ReportField=DocumentFullPathAndName~G:\GitHUB\TrackedVehicle\PCB\brushless\V1.2\driverV1.2.SCH|ReportField=DocumentName~driverV1.2.SCH|ReportField=DocumentNumber~|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=ModifiedDate~2017-08-30|ReportField=Organization~|ReportField=ProjectName~DRIVERV1.2.PRJPCB|ReportField=Revision~|ReportField=Rule~|ReportField=SheetNumber~0|ReportField=SheetTotal~0|ReportField=Time~|ReportField=Title~|ReportField=DataSourceFileName~DRIVERV1.2.PRJPCB|ReportField=DataSourceFullPath~G:\GitHUB\TrackedVehicle\PCB\brushless\V1.2\DRIVERV1.2.PRJPCB
+1|Cap|C1, C2, C14|3216[1206]|Cap|3|100nF
+2|Cap|C3, C4|3216[1206]|Cap|2|2.2UF/100V
+3|Cap|C5, C6, C9, C11, C18, C19|R0805|Cap|6|10nF
+4|Cap Pol1|C8|C6.3*12|Cap Pol1|1|220uF/10V
+5|Cap|C10, C12, C17, C25, C26, C32, C36, C41, C43, C44, C45|0603|Cap|11|104
+6|Cap|C13|R0805|Cap|1|100nF
+7|Cap|C15|3216[1206]|Cap|1|2.2UF
+8|Cap|C16, C42|0603|Cap|2|100pF
+9|Cap|C20, C22|0603|Cap|2|22pF
+10|Cap Pol3|C23|C8x4|Cap Pol3|1|1000uF
+11|Cap|C24, C27|0603|Cap|2|100nF
+12|Cap Pol1|C28, C29|C16-7.5|Cap Pol1|2|470uF(100V)
+13|Cap|C30|0603|Cap|1|39pF
+14|Cap|C31|0603|Cap|1|6800pF
+15|Cap|C33, C34, C35|0603|Cap|3|100P
+16|Cap|C38|0603|Cap|1|103
+17|Cap|C39|0603|Cap|1|1nF
+18|Diode|D1, D2, D3, D4, D7, D12|LL34|Diode 1N5408|6|1N4148
+19|Zener diode|D5, D6, D8|LL34|D Zener|3|1N4744
+20|SMBJ45CA|D9|SMB|Diode 18TQ045|1|SMBJ45CA
+21|WORK|D10|0603-LED|LED2|1|
+22|FALT|D11, D14|0603-LED|LED2|2|
+23|SS54|D13|SMA|Diode BAS16|1|SS54
+24|Fuse Thermal|F1|1812|Fuse Thermal|1|
+25|Inductor|L1|L-6045|Inductor|1|5.6uH
+26|PROG|P1|HDR1X4|Header 4|1|
+27|ENC|P2|5557-4-small|Header 4|1|
+28|M5|P3, P4, P5, P6, P10|M4|M5|5|
+29|HALL|P7|5557-6-small|Header 6|1|
+30|S1|P8|HDR1X3|Header 3|1|
+31|FAN|P9|PH2.0-2P|Header 2|1|
+32|RT|P11|PH2.0-2P|Header 2|1|
+33|PNP|Q1, Q2, Q6, Q7, Q9, Q10, Q11, Q16, Q18, Q19|SOT-23-PNP|2N5401|10|2N5401
+34|NPN|Q3, Q4, Q5, Q8, Q12, Q13, Q14, Q15, Q17, Q20, Q21, Q22|SOT-23-NPN|2N5551|12|2N5551
+35|Res1|R1, R2, R8, R9, R15, R16, R32, R34, R37|R0805|Res1|9|510
+36|Res1|R3, R4, R24|0603|Res1|3|4.7K
+37|Res1|R5, R6, R18, R19, R27, R28, R33, R38, R45|R0805|Res1|9|20
+38|Res1|R7, R25, R26, R42|R0805|Res1|4|1.5K
+39|Res1|R10, R11, R12, R13, R14, R22, R23, R35, R36, R40|R0805|Res1|10|2.2K
+40|Res1|R17|0603|Res1|1|510
+41|Res1|R20, R21, R39|R0805|Res1|3|51
+42||R29|3920|Res1|1|5mR
+43|Res1|R30|0603|Res1|1|47K 1%
+44|Res1|R31|0603|Res1|1|470
+45|Res1|R41|0603|Res1|1|47K (2099KHZ)
+46|Res1|R43|0603|Res1|1|2.49K 1%
+47|Res1|R44|0603|Res1|1|13K
+48|Res1|R46, R48|0603|Res1|2|10K
+49|Res1|R47, R49, R52|0603|Res1|3|1K
+50|Res Semi|R53, R54, R55|0603|Res Semi|3|4.7K
+51|Res Semi|R56, R57, R58|0603|Res Semi|3|4.7R
+52|Res1|R59|0603|Res1|1|2.2K
+53|Res1|R60|0603|Res1|1|20K
+54|Res Semi|R61|0603|Res Semi|1|100R
+55|Res1|R62|0805|Res1|1|43K
+56|Res1|R63|0805|Res1|1|1K
+57|CSD19536|T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12|D2PAK|IRF644S|12|
+58|L7805|U1|TO-252|MC78M05ACDTRK|1|
+59|MAX706RCSA|U2|SOIC8|MAX706RCSA|1|
+60|MAX4080T|U3|SOIC8|MAX4080|1|
+61|LM358D|U4|SOIC8|LM358D|1|
+62|ATmega8-16AC|U5|32A_N|ATmega8-16AC|1|
+63|TPS54360|U6|SOP8-POW|TPS54360|1|
+64|MC74HC14AD|U8|751A|MC74HC14AD|1|
+65|NE555D|U9|SOIC8|NE555D|1|
+66|XTAL(8M)|Y1|49SD|XTAL|1|
